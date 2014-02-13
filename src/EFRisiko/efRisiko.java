@@ -1,5 +1,5 @@
 /**
- * efRisiko.java
+ * EFRisiko.java
  * (c) 2014 Benjamin Schmid
  * Created: 12.02.2014
  * 
@@ -7,17 +7,26 @@
  * Initializes the GameCore and starts the GameInterface.
  */
 
-package EFRisiko;
+package efRisiko;
 
-public class efRisiko {
+public class EFRisiko {
 
 	public static void main(String[] args) {
 		System.out.println("EFRisiko\n(c) 2014 Benjamin Schmid");
+		
+		// ToDo: Startmenu
+		
 		System.out.println("Initialize GameCore...");
 		// ToDo: Init GameCore
+		GameCore.init();
 		System.out.println("Done!");
+		
 		System.out.println("Initialize GameInterface...");
 		// ToDo: Init GameInterface
+		GameInterface gameInterface = new GameInterface();
+		gameInterface.init();
+		gameInterface.show();
+		
 		System.out.println("Done!");
 	}
 
