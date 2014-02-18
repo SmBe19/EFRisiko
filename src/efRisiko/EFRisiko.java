@@ -17,15 +17,16 @@ public class EFRisiko {
 		// ToDo: Startmenu
 		
 		System.out.println("Initialize GameCore...");
-		// ToDo: Init GameCore
 		GameCore.init();
 		System.out.println("Done!");
 		
 		System.out.println("Initialize GameInterface...");
-		// ToDo: Init GameInterface
 		GameInterface gameInterface = new GameInterface();
 		gameInterface.init();
 		gameInterface.show();
+		
+		for(long i = 0; i < 1000000000L; i++)
+			gameInterface.repaint();
 		
 		System.out.println("Done!");
 	}
