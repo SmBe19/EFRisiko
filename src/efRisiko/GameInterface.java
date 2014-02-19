@@ -51,5 +51,13 @@ public class GameInterface extends JPanel {
 		g.setColor(Consts.TITLEBARFOREGROUND);
 		g.setFont(g.getFont().deriveFont(Consts.TITLEBARSIZE));
 		g.drawString(Consts.GAMENAME, 10, Consts.TITLEBARHEIGHT - 10);
+		
+		// Content
+		
+		// Background
+		g.fillRect(0, Consts.TITLEBARHEIGHT, Consts.SCREENWIDTH, Consts.SCREENHEIGHT - Consts.TITLEBARHEIGHT);
+		g.drawImage(GameCore.backgroundImage, 0, Consts.TITLEBARHEIGHT, Consts.SCREENWIDTH, Consts.SCREENHEIGHT - Consts.TITLEBARHEIGHT, this);
+		
+		g.finalize();
 	}
 }

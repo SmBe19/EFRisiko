@@ -17,7 +17,11 @@ public class EFRisiko {
 		// ToDo: Startmenu
 		
 		System.out.println("Initialize GameCore...");
-		GameCore.init();
+		if(!GameCore.init())
+		{
+			System.out.println("Init failed");
+			return;
+		}
 		System.out.println("Done!");
 		
 		System.out.println("Initialize GameInterface...");
