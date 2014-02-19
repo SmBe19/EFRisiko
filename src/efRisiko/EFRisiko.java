@@ -25,9 +25,6 @@ public class EFRisiko {
 		gameInterface.init();
 		gameInterface.show();
 		
-		for(long i = 0; i < 1000000000L; i++)
-			gameInterface.repaint();
-		
 		System.out.println("Done!");
 	}
 
