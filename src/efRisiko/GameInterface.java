@@ -85,6 +85,15 @@ public class GameInterface extends JPanel {
 			g.drawString(String.format("%3d", GameCore.regions.get(i).units), (int)(GameCore.regions.get(i).location.x * scaleX - Consts.VERTEXUNITSTRINGOFFSET), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT + Consts.VERTEXFONTSIZE / 2 - 2));
 		}
 		
+		// InfoField
+		g.setFont(g.getFont().deriveFont(Consts.INFOFIELDFONTSIZE));
+		g.setColor(Consts.INFOFIELDBACKGROUND);
+		g.fillRect(Consts.INFOFIELDX, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT, Consts.INFOFIELDWIDTH, Consts.INFOFIELDHEIGHT);
+		
+		g.setColor(Consts.INFOFIELDFOREGROUND);
+		g.drawString("Active player: " + GameCore.activePlayer, Consts.INFOFIELDX + 10, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 1.5));
+		g.drawString("Active phase: " + GameCore.activeState, Consts.INFOFIELDX + 10, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 3));
+		
 		g.finalize();
 	}
 }
