@@ -9,6 +9,7 @@
 package efRisiko;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -86,6 +87,14 @@ public class GameCore {
 						b = Integer.parseInt(aLine.split(" ")[1]);
 						regions.get(a).connections.add(b);
 						regions.get(b).connections.add(a);
+					}
+					for(int i = 0; i < n; i++)
+					{
+						aLine = getNextLine(reader);
+						int a, b;
+						a = Integer.parseInt(aLine.split(" ")[0]);
+						b = Integer.parseInt(aLine.split(" ")[1]);
+						regions.get(i).location = new Point(a, b);
 					}
 					
 					aSection = "";
