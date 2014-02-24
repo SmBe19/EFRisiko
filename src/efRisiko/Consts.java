@@ -11,7 +11,7 @@ package efRisiko;
 import java.awt.Color;
 
 public class Consts {
-	public static boolean ISDEBUG = true;
+	public static boolean ISDEBUG = false;
 	
 	public static int SCREENWIDTH = 400;
 	public static int SCREENHEIGHT = 400;

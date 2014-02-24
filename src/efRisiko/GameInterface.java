@@ -65,14 +65,22 @@ public class GameInterface extends JPanel {
 				{
 					if(arg0.getX() < Consts.COUNTDIALOGX + Consts.COUNTDIALOGWIDTH / 2)
 					{
-						if(countDialogValue > 0)
+						if(arg0.getButton() == MouseEvent.BUTTON1)
 							countDialogValue--;
+						else if (arg0.getButton() == MouseEvent.BUTTON3)
+							countDialogValue -= 5;
 					}
 					else
 					{
-						if(countDialogValue < countDialogAMax)
+						if(arg0.getButton() == MouseEvent.BUTTON1)
 							countDialogValue++;
+						else if (arg0.getButton() == MouseEvent.BUTTON3)
+							countDialogValue += 5;
 					}
+					if(countDialogValue < 0)
+						countDialogValue = 0;
+					if(countDialogValue > countDialogAMax)
+						countDialogValue = countDialogAMax;
 				}
 				else if(!GameCore.isPreparation && GameCore.activeState != GameState.REINFORCE
 						&& arg0.getX() > Consts.SCREENWIDTH - Consts.NEXTPHASEBUTTONOFFSET && arg0.getX() < Consts.SCREENWIDTH
@@ -222,15 +230,20 @@ public class GameInterface extends JPanel {
 		// Graph
 		g.setColor(Color.black);
 		g.setStroke(new BasicStroke(5));
-		for(int i = 0; i < GameCore.regions.size(); i++)
-			for(int j = 0; j < GameCore.regions.get(i).connections.size(); j++)
-				g.drawLine((int)(GameCore.regions.get(i).location.x * scaleX), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT), (int)(GameCore.regions.get(GameCore.regions.get(i).connections.get(j)).location.x * scaleX), (int)(GameCore.regions.get(GameCore.regions.get(i).connections.get(j)).location.y * scaleY + Consts.TITLEBARHEIGHT));
+		if(Consts.ISDEBUG)
+		{
+			for(int i = 0; i < GameCore.regions.size(); i++)
+				for(int j = 0; j < GameCore.regions.get(i).connections.size(); j++)
+					g.drawLine((int)(GameCore.regions.get(i).location.x * scaleX), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT), (int)(GameCore.regions.get(GameCore.regions.get(i).connections.get(j)).location.x * scaleX), (int)(GameCore.regions.get(GameCore.regions.get(i).connections.get(j)).location.y * scaleY + Consts.TITLEBARHEIGHT));
+		}
 		
 		g.setFont(g.getFont().deriveFont(Consts.VERTEXFONTSIZE));
 		
 		for(int i = 0; i < GameCore.regions.size(); i++)
 		{
 			g.setColor(Color.white);
+			if(activeRegion == i)
+				g.setColor(Color.black);
 			g.fillOval((int)(GameCore.regions.get(i).location.x * scaleX - Consts.VERTEXSIZE / 2), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT - Consts.VERTEXSIZE / 2), Consts.VERTEXSIZE, Consts.VERTEXSIZE);
 			if(GameCore.regions.get(i).player >= 0)
 				g.setColor(Consts.PLAYERCOLORS[GameCore.regions.get(i).player % Consts.MAXPLAYERCOUNT]);

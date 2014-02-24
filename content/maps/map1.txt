@@ -3,7 +3,7 @@
 ; Testmap
 
 [REGIONS]
-; #E #V
+; #V #E
 5 10
 ; Connections
 0 1

@@ -58,7 +58,7 @@ public class GameCore {
 		players = new ArrayList<Player>();
 		rnd = new Random(System.currentTimeMillis());
 		
-		if(!loadMap("content/maps/map1.txt"))
+		if(!loadMap("content/maps/Risiko.txt"))
 			return false;
 		
 		for(int i = 0; i < Consts.PLAYERCOUNT; i++)
@@ -464,7 +464,12 @@ public class GameCore {
 				else if(aSection.equals("[GRAPHIC]"))
 				{
 					aLine = getNextLine(reader);
-					
+
+					if(!(new File(aLine)).exists() || (new File(aLine)).isDirectory())
+					{
+						System.out.println("File " + aLine + " not found!");
+						return false;
+					}
 					backgroundImage = ImageIO.read(new File(aLine));
 					
 					aSection = "";
