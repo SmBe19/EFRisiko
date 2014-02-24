@@ -17,11 +17,20 @@ public class EFRisiko {
 		// ToDo: Startmenu
 		
 		System.out.println("Initialize GameCore...");
+		
+		// Set Playercount
+		
 		if(!GameCore.init())
 		{
 			System.out.println("Init failed");
 			return;
 		}
+		
+		// Debug
+		GameCore.unitsLeft = Consts.PLAYERCOUNT * 4;
+		
+		// Set Playertype
+		
 		System.out.println("Done!");
 		
 		System.out.println("Initialize GameInterface...");
