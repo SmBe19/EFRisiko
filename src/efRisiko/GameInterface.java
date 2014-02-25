@@ -277,6 +277,13 @@ public class GameInterface extends JPanel {
 					"; D: " + (GameCore.attackResD1 > 0 ? GameCore.attackResD1 : "")  + (GameCore.attackResD2 > 0 ? ", " + GameCore.attackResD2 : ""),
 					Consts.INFOFIELDX + 10, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 4.5));
 		
+		// ContinentInfo Field
+		g.setFont(g.getFont().deriveFont(Consts.CONTINENTINFOFIELDFONTSIZE));
+		g.setColor(Consts.CONTINENTINFOFIELDBACKGROUND);
+		g.fillRect(Consts.CONTINENTINFOFIELDX, Consts.SCREENHEIGHT - (int)(Consts.CONTINENTINFOFIELDY + Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * GameCore.continents.size()), Consts.CONTINENTINFOFIELDWIDTH, (int)(Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * (GameCore.continents.size() + 1)));
+		g.setColor(Consts.CONTINENTINFOFIELDFOREGROUND);
+		for(int i = 0; i < GameCore.continents.size(); i++)
+			g.drawString(GameCore.continents.get(i).units + ": " + GameCore.continents.get(i).name, Consts.CONTINENTINFOFIELDX + Consts.CONTINENTINFOFIELDMARGIN, Consts.SCREENHEIGHT - (int)(Consts.CONTINENTINFOFIELDY + Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * i - Consts.CONTINENTINFOFIELDFONTSIZE * 0.3));
 		
 		// CountDialog
 		if(countDialogVisible)

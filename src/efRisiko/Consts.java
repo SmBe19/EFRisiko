@@ -46,6 +46,15 @@ public class Consts {
 	public static float INFOFIELDFONTSIZE = 12f;
 	public static int INFOFIELDMARGIN = 10;
 	
+	// ContinentInfo-Field
+	public static int CONTINENTINFOFIELDX = 40;
+	public static int CONTINENTINFOFIELDY = 40;
+	public static int CONTINENTINFOFIELDWIDTH = 130;
+	public static Color CONTINENTINFOFIELDBACKGROUND = Color.black;
+	public static Color CONTINENTINFOFIELDFOREGROUND = Color.white;
+	public static float CONTINENTINFOFIELDFONTSIZE = 12f;
+	public static int CONTINENTINFOFIELDMARGIN = 10;
+	
 	// Count-Dialog
 	public static int COUNTDIALOGX = 40;
 	public static int COUNTDIALOGY = 200;
