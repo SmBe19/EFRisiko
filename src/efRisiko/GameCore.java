@@ -58,7 +58,7 @@ public class GameCore {
 		players = new ArrayList<Player>();
 		rnd = new Random(System.currentTimeMillis());
 		
-		if(!loadMap("content/maps/Risiko.txt"))
+		if(!loadMap("content/maps/" + Consts.MAPNAME))
 			return false;
 		
 		for(int i = 0; i < Consts.PLAYERCOUNT; i++)
@@ -67,14 +67,21 @@ public class GameCore {
 			p.controlType = PlayerControlType.LOCAL;
 			players.add(p);
 		}
-		
-		isPreparation = true;
-		activePlayer = rnd.nextInt(Consts.PLAYERCOUNT);
-		activeState = GameState.REINFORCE;
+
 		
 		unitsLeft = 50 - Consts.PLAYERCOUNT * 5;
 		unitsLeft *= Consts.PLAYERCOUNT;
 		
+		isPreparation = true;
+		activePlayer = rnd.nextInt(Consts.PLAYERCOUNT);
+		activeState = GameState.REINFORCE;
+		if(Consts.AUTOPLACEUNITS)
+		{
+			while(isPreparation)
+			{
+				placeUnits(rnd.nextInt(regions.size()), 1);
+			}
+		}
 		return true;
 	}
 	
@@ -175,7 +182,7 @@ public class GameCore {
 	 * @param region Die zu besetzende Region
 	 * @return ob die Aktion erfolgreich war
 	 */
-	public static boolean placeUnit(int region)
+	public static boolean placeUnits(int region, int count)
 	{
 		if(!isPreparation && activeState != GameState.REINFORCE)
 			return false;
@@ -186,10 +193,13 @@ public class GameCore {
 		if(isPreparation && regions.get(region).player >= 0 && !allRegionsOccupied())
 			return false;
 		
-		regions.get(region).player = activePlayer;
-		regions.get(region).units++;
+		if(unitsLeft < count || isPreparation && count > 1 || count < 1)
+			return false;
 		
-		unitsLeft--;
+		regions.get(region).player = activePlayer;
+		regions.get(region).units += count;
+		
+		unitsLeft -= count;
 		
 		if(isPreparation)
 			nextPlayer();

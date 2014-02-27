@@ -12,11 +12,14 @@ import java.awt.Color;
 
 public class Consts {
 	public static boolean ISDEBUG = false;
+	public static int DEBUGSTARTUNITS = 5;
+	public static boolean AUTOPLACEUNITS = true;
 	
 	public static int SCREENWIDTH = 400;
 	public static int SCREENHEIGHT = 400;
 	
 	public static int PLAYERCOUNT = 4;
+	public static String MAPNAME = "Schweiz.txt";
 	
 	// Interface-Settings
 	
@@ -38,29 +41,29 @@ public class Consts {
 	public static Color ACTIVEVERTEXCOLOR = Color.yellow;
 	
 	// Info-Field
-	public static int INFOFIELDX = 40;
+	public static int INFOFIELDX = 60;
 	public static int INFOFIELDY = 40;
 	public static int INFOFIELDWIDTH = 200;
 	public static int INFOFIELDHEIGHT = 65;
-	public static Color INFOFIELDBACKGROUND = Color.black;
+	public static Color INFOFIELDBACKGROUND = new Color(1f, 1f, 1f, 0.7f);
 	public static float INFOFIELDFONTSIZE = 12f;
 	public static int INFOFIELDMARGIN = 10;
 	
 	// ContinentInfo-Field
-	public static int CONTINENTINFOFIELDX = 40;
+	public static int CONTINENTINFOFIELDX = 60;
 	public static int CONTINENTINFOFIELDY = 40;
-	public static int CONTINENTINFOFIELDWIDTH = 130;
-	public static Color CONTINENTINFOFIELDBACKGROUND = Color.black;
+	public static int CONTINENTINFOFIELDWIDTH = 160;
+	public static Color CONTINENTINFOFIELDBACKGROUND = new Color(0f, 0f, 0f, 0.7f);
 	public static Color CONTINENTINFOFIELDFOREGROUND = Color.white;
 	public static float CONTINENTINFOFIELDFONTSIZE = 12f;
 	public static int CONTINENTINFOFIELDMARGIN = 10;
 	
 	// Count-Dialog
-	public static int COUNTDIALOGX = 40;
+	public static int COUNTDIALOGX = 60;
 	public static int COUNTDIALOGY = 200;
 	public static int COUNTDIALOGWIDTH = 150;
 	public static int COUNTDIALOGHEIGHT = 60;
-	public static Color COUNTDIALOGBACKGROUND = Color.black;
+	public static Color COUNTDIALOGBACKGROUND = new Color(0f, 0f, 0f, 0.7f);
 	public static Color COUNTDIALOGFOREGROUND = Color.white;
 	public static float COUNTDIALOGFONTSIZE = 30f;
 	public static int COUNTDIALOGMARGIN = COUNTDIALOGWIDTH / 3;

@@ -24,7 +24,7 @@
 40 30
 
 [CONTINENTS]
-; Number
+; # Continents
 2
 ; Name
 Schweiz

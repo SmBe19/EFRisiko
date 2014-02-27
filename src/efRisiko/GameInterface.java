@@ -69,6 +69,8 @@ public class GameInterface extends JPanel {
 							countDialogValue--;
 						else if (arg0.getButton() == MouseEvent.BUTTON3)
 							countDialogValue -= 5;
+						else if(arg0.getButton() == MouseEvent.BUTTON2)
+							countDialogValue -= 20;
 					}
 					else
 					{
@@ -76,6 +78,8 @@ public class GameInterface extends JPanel {
 							countDialogValue++;
 						else if (arg0.getButton() == MouseEvent.BUTTON3)
 							countDialogValue += 5;
+						else if(arg0.getButton() == MouseEvent.BUTTON2)
+							countDialogValue += 20;
 					}
 					if(countDialogValue < 0)
 						countDialogValue = 0;
@@ -94,14 +98,35 @@ public class GameInterface extends JPanel {
 					if(GameCore.isPreparation)
 					{
 						if(reg >= 0)
-							GameCore.placeUnit(reg);
+							GameCore.placeUnits(reg, 1);
 					}
 					else
 					{
 						switch (GameCore.activeState) {
 						case REINFORCE:
-							if(reg >= 0)
-								GameCore.placeUnit(reg);
+							if(activeRegion < 0)
+							{
+								if(GameCore.regions.get(reg).player == GameCore.activePlayer || GameCore.regions.get(reg).player < 0)
+								{
+									activeRegion = reg;
+									countDialogVisible = true;
+									countDialogValue = 1;
+									countDialogAMax = GameCore.unitsLeft;
+								}
+							}
+							else if(activeRegion == reg)
+							{
+								GameCore.placeUnits(reg, countDialogValue);
+								countDialogVisible = false;
+								activeRegion = -1;
+							}
+							else
+							{
+								if(GameCore.regions.get(reg).player == GameCore.activePlayer || GameCore.regions.get(reg).player < 0)
+								{
+									activeRegion = reg;
+								}
+							}
 							break;
 						case ATTACK:
 							if(activeRegion < 0)
@@ -111,7 +136,7 @@ public class GameInterface extends JPanel {
 							}
 							else
 							{
-								if(reg >= 0 && GameCore.regions.get(reg).player != GameCore.activePlayer)
+								if(reg >= 0 && GameCore.regions.get(reg).player != GameCore.activePlayer && arg0.getButton() == MouseEvent.BUTTON3)
 									GameCore.attack(activeRegion, reg);
 								else
 									activeRegion = -1;
@@ -126,7 +151,7 @@ public class GameInterface extends JPanel {
 							}
 							break;
 						case BACK:
-							if(reg == GameCore.attackDrain)
+							if(reg == GameCore.attackDrain && arg0.getButton() == MouseEvent.BUTTON1)
 							{
 								GameCore.backRegion(countDialogValue);
 								countDialogVisible = false;

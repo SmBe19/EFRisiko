@@ -18,7 +18,7 @@ public class EFRisiko {
 		
 		System.out.println("Initialize GameCore...");
 		
-		// Set Playercount
+		// Set Playercount, Mapname
 		
 		if(!GameCore.init())
 		{
@@ -27,7 +27,8 @@ public class EFRisiko {
 		}
 		
 		// Debug
-		GameCore.unitsLeft = Consts.PLAYERCOUNT * 4;
+		if(Consts.ISDEBUG)
+			GameCore.unitsLeft = Consts.PLAYERCOUNT * Consts.DEBUGSTARTUNITS;
 		
 		// Set Playertype
 		

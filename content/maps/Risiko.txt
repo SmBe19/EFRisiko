@@ -134,7 +134,7 @@
 1919 1168
 
 [CONTINENTS]
-; Number
+; # Continents
 6
 ; Name
 Nordamerika
