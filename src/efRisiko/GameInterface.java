@@ -12,8 +12,14 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -27,7 +33,6 @@ public class GameInterface extends JPanel {
 	
 	int activeRegion;
 	
-	boolean countDialogVisible;
 	int countDialogValue;
 	int countDialogAMax;
 	
@@ -60,7 +65,7 @@ public class GameInterface extends JPanel {
 			
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				if(countDialogVisible && arg0.getX() > Consts.COUNTDIALOGX && arg0.getX() < Consts.COUNTDIALOGX + Consts.COUNTDIALOGWIDTH
+				if(Consts.COUNTDIALOGVISIBLE && arg0.getX() > Consts.COUNTDIALOGX && arg0.getX() < Consts.COUNTDIALOGX + Consts.COUNTDIALOGWIDTH
 						&& arg0.getY() > Consts.COUNTDIALOGY + Consts.TITLEBARHEIGHT && arg0.getY() < Consts.COUNTDIALOGY + Consts.COUNTDIALOGHEIGHT + Consts.TITLEBARHEIGHT)
 				{
 					if(arg0.getX() < Consts.COUNTDIALOGX + Consts.COUNTDIALOGWIDTH / 2)
@@ -86,8 +91,7 @@ public class GameInterface extends JPanel {
 					if(countDialogValue > countDialogAMax)
 						countDialogValue = countDialogAMax;
 				}
-				else if(!GameCore.isPreparation && GameCore.activeState != GameState.REINFORCE
-						&& arg0.getX() > Consts.SCREENWIDTH - Consts.NEXTPHASEBUTTONOFFSET && arg0.getX() < Consts.SCREENWIDTH
+				else if(arg0.getX() > Consts.SCREENWIDTH - Consts.NEXTPHASEBUTTONOFFSET && arg0.getX() < Consts.SCREENWIDTH
 						&& arg0.getY() > 0 && arg0.getY() < Consts.TITLEBARHEIGHT)
 				{
 					GameCore.nextPhase();
@@ -100,7 +104,7 @@ public class GameInterface extends JPanel {
 						if(reg >= 0)
 							GameCore.placeUnits(reg, 1);
 					}
-					else
+					else if (reg >= 0)
 					{
 						switch (GameCore.activeState) {
 						case REINFORCE:
@@ -109,7 +113,7 @@ public class GameInterface extends JPanel {
 								if(GameCore.regions.get(reg).player == GameCore.activePlayer || GameCore.regions.get(reg).player < 0)
 								{
 									activeRegion = reg;
-									countDialogVisible = true;
+									Consts.COUNTDIALOGVISIBLE = true;
 									countDialogValue = 1;
 									countDialogAMax = GameCore.unitsLeft;
 								}
@@ -117,7 +121,7 @@ public class GameInterface extends JPanel {
 							else if(activeRegion == reg)
 							{
 								GameCore.placeUnits(reg, countDialogValue);
-								countDialogVisible = false;
+								Consts.COUNTDIALOGVISIBLE = false;
 								activeRegion = -1;
 							}
 							else
@@ -145,7 +149,7 @@ public class GameInterface extends JPanel {
 							{
 								countDialogValue = 0;
 								countDialogAMax = GameCore.regions.get(activeRegion).units - 1;
-								countDialogVisible = true;
+								Consts.COUNTDIALOGVISIBLE = true;
 								
 								activeRegion = reg;
 							}
@@ -154,7 +158,7 @@ public class GameInterface extends JPanel {
 							if(reg == GameCore.attackDrain && arg0.getButton() == MouseEvent.BUTTON1)
 							{
 								GameCore.backRegion(countDialogValue);
-								countDialogVisible = false;
+								Consts.COUNTDIALOGVISIBLE = false;
 							}
 							break;
 						case MOVE:
@@ -166,7 +170,7 @@ public class GameInterface extends JPanel {
 
 									countDialogValue = 0;
 									countDialogAMax = GameCore.regions.get(activeRegion).units - 1;
-									countDialogVisible = true;
+									Consts.COUNTDIALOGVISIBLE = true;
 								}
 							}
 							else
@@ -174,12 +178,46 @@ public class GameInterface extends JPanel {
 								if(reg >= 0 && GameCore.regions.get(reg).player == GameCore.activePlayer)
 									GameCore.move(activeRegion, reg, countDialogValue);
 								activeRegion = -1;
-								countDialogVisible = false;
+								Consts.COUNTDIALOGVISIBLE = false;
 							}
 							break;
 						}
 					}
 				}
+				repaint();
+			}
+		});
+	
+		this.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				switch(arg0.getKeyCode())
+				{
+				case Consts.HELPFIELDVISIBLEKEY:
+					Consts.HELPFIELDVISIBLE = !Consts.HELPFIELDVISIBLE;
+					break;
+				case Consts.NEXTPHASEKEY:
+					GameCore.nextPhase();
+					break;
+				case Consts.CONTINENTINFOFIELDVISIBLEKEY:
+					Consts.CONTINENTINFOFIELDVISIBLE = !Consts.CONTINENTINFOFIELDVISIBLE;
+					break;
+				case Consts.INFOFIELDCHANGEKEY:
+					Consts.INFOFIELDTITLEBAR = !Consts.INFOFIELDTITLEBAR;
+					break;
+				}
+				
 				repaint();
 			}
 		});
@@ -190,16 +228,39 @@ public class GameInterface extends JPanel {
 	 */
 	public void show()
 	{
+		setFocusable(true);
 		frame = new JFrame("EFRisiko");
 		frame.add(this);
 		frame.setSize(Consts.SCREENWIDTH, Consts.SCREENHEIGHT);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		requestFocusInWindow();
+		
+		readHelpFile();
 		
 		countDialogValue = 0;
-		countDialogVisible = false;
 		
 		activeRegion = -1;
+	}
+	
+	void readHelpFile()
+	{
+		File f = new File(Consts.CONTENTFOLDER + Consts.HELPFIELDTEXTFILE);
+		if(f.exists() && !f.isDirectory())
+		{
+			FileInputStream fis;
+			try {
+				fis = new FileInputStream(f);
+			    byte[] data = new byte[(int)f.length()];
+			    fis.read(data);
+			    fis.close();
+			    Consts.HELPFIELDTEXT = new String(data, "UTF-8");
+			} catch (FileNotFoundException e) {
+				System.err.println("Error: " + e.getMessage());
+			} catch (IOException e){
+				System.err.println("Error: " + e.getMessage());
+			}
+		}
 	}
 	
 	/**
@@ -266,9 +327,9 @@ public class GameInterface extends JPanel {
 		
 		for(int i = 0; i < GameCore.regions.size(); i++)
 		{
-			g.setColor(Color.white);
+			g.setColor(Consts.VERTEXBACKGROUND);
 			if(activeRegion == i)
-				g.setColor(Color.black);
+				g.setColor(Consts.ACTIVEVERTEXBACKGROUND);
 			g.fillOval((int)(GameCore.regions.get(i).location.x * scaleX - Consts.VERTEXSIZE / 2), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT - Consts.VERTEXSIZE / 2), Consts.VERTEXSIZE, Consts.VERTEXSIZE);
 			if(GameCore.regions.get(i).player >= 0)
 				g.setColor(Consts.PLAYERCOLORS[GameCore.regions.get(i).player % Consts.MAXPLAYERCOUNT]);
@@ -282,36 +343,79 @@ public class GameInterface extends JPanel {
 		}
 		
 		// InfoField
-		g.setFont(g.getFont().deriveFont(Consts.INFOFIELDFONTSIZE));
-		g.setColor(Consts.INFOFIELDBACKGROUND);
-		g.fillRect(Consts.INFOFIELDX, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT, Consts.INFOFIELDWIDTH, Consts.INFOFIELDHEIGHT);
-		
-		g.setColor(Consts.PLAYERCOLORS[GameCore.activePlayer % Consts.MAXPLAYERCOUNT]);
-		g.drawString("Active player: " + GameCore.activePlayer, Consts.INFOFIELDX + Consts.INFOFIELDMARGIN, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 1.5));
+		String splitter = Consts.INFOFIELDTITLEBAR ? "; " : "\n";
+		StringBuilder text = new StringBuilder();
+		text.append("Player: " + GameCore.activePlayer);
+		text.append(splitter + "Phase: ");
 		if(GameCore.isPreparation)
-			g.drawString("Active phase: PREP", Consts.INFOFIELDX + Consts.INFOFIELDMARGIN, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 3));
+			text.append("PREP");
 		else
-			g.drawString("Active phase: " + GameCore.activeState, Consts.INFOFIELDX + Consts.INFOFIELDMARGIN, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 3));
+			text.append(GameCore.activeState);
 		
 		if(GameCore.isPreparation || GameCore.activeState == GameState.REINFORCE)
-			g.drawString("units left: " + (int)Math.ceil(GameCore.unitsLeft * (GameCore.isPreparation ? 1f/Consts.PLAYERCOUNT : 1)), Consts.INFOFIELDX + 10, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 4.5));
-		else if ((GameCore.activeState == GameState.ATTACK || GameCore.activeState == GameState.BACK) && GameCore.attackResA1 > 0)
-			g.drawString("Result: " + GameCore.attackResA1 + (GameCore.attackResA1 > GameCore.attackResD1 ? ">" : "<=") + GameCore.attackResD1 +
+			text.append(splitter + "Units left: " + (int)Math.ceil(GameCore.unitsLeft * (GameCore.isPreparation ? 1f/Consts.PLAYERCOUNT : 1)));
+		else if((GameCore.activeState == GameState.ATTACK || GameCore.activeState == GameState.BACK) && GameCore.attackResA1 > 0)
+			text.append(splitter + "Result: " + GameCore.attackResA1 + (GameCore.attackResA1 > GameCore.attackResD1 ? ">" : "<=") + GameCore.attackResD1 +
 					(GameCore.attackResA2 > 0 && GameCore.attackResD2 > 0 ? (" & " + GameCore.attackResA2 + (GameCore.attackResA2 > GameCore.attackResD2 ? ">" : "<=") + GameCore.attackResD2) : "") +
 					"; A: " + (GameCore.attackResA1 > 0 ? GameCore.attackResA1 : "") + (GameCore.attackResA2 > 0 ? ", " + GameCore.attackResA2 : "")  + (GameCore.attackResA3 > 0 ? ", " + GameCore.attackResA3 : "") +
-					"; D: " + (GameCore.attackResD1 > 0 ? GameCore.attackResD1 : "")  + (GameCore.attackResD2 > 0 ? ", " + GameCore.attackResD2 : ""),
-					Consts.INFOFIELDX + 10, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 4.5));
+					"; D: " + (GameCore.attackResD1 > 0 ? GameCore.attackResD1 : "")  + (GameCore.attackResD2 > 0 ? ", " + GameCore.attackResD2 : ""));
+		
+		if(Consts.INFOFIELDTITLEBAR)
+		{
+			g.setFont(g.getFont().deriveFont(Consts.INFOFIELDTBFONTSIZE));
+			g.setColor(Consts.INFOFIELDTBBACKGROUND);
+			g.fillRect(Consts.INFOFIELDTBX, 0, Consts.INFOFIELDTBWIDTH, Consts.TITLEBARHEIGHT);
+			
+			g.setColor(Consts.PLAYERCOLORS[GameCore.activePlayer % Consts.MAXPLAYERCOUNT]);
+			
+			g.drawString(text.toString(), Consts.INFOFIELDTBX + Consts.INFOFIELDMARGIN, Consts.TITLEBARHEIGHT - Consts.INFOFIELDMARGIN);
+		}
+		else
+		{
+			g.setFont(g.getFont().deriveFont(Consts.INFOFIELDFONTSIZE));
+			g.setColor(Consts.INFOFIELDBACKGROUND);
+			g.fillRect(Consts.INFOFIELDX, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT, Consts.INFOFIELDWIDTH, (int)(text.toString().split("\n").length * Consts.INFOFIELDFONTSIZE * 1.5f + Consts.INFOFIELDFONTSIZE * 1));
+			
+			g.setColor(Consts.PLAYERCOLORS[GameCore.activePlayer % Consts.MAXPLAYERCOUNT]);
+			
+
+			int aLine = 1;
+			for (String line : text.toString().split("\n"))
+				g.drawString(line, Consts.INFOFIELDX + Consts.INFOFIELDMARGIN, Consts.INFOFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.INFOFIELDFONTSIZE * 1.5f * aLine++));
+		}
+		
+		// HelpField
+		if(Consts.HELPFIELDVISIBLE)
+		{
+			g.setFont(g.getFont().deriveFont(Consts.HELPFIELDFONTSIZE));
+			g.setColor(Consts.HELPFIELDBACKGROUND);
+			g.fillRect(Consts.SCREENWIDTH - Consts.HELPFIELDWIDTH - Consts.HELPFIELDX, Consts.TITLEBARHEIGHT + Consts.HELPFIELDY, Consts.HELPFIELDWIDTH, (int)(Consts.HELPFIELDTEXT.split("\n").length * Consts.HELPFIELDFONTSIZE * 1.5f + Consts.HELPFIELDFONTSIZE * 1));
+			
+			g.setColor(Consts.HELPFIELDFOREGROUND);
+			int aLine = 1;
+			for (String line : Consts.HELPFIELDTEXT.split("\n"))
+				g.drawString(line, Consts.SCREENWIDTH - Consts.HELPFIELDWIDTH - Consts.HELPFIELDX + Consts.HELPFIELDMARGIN, Consts.TITLEBARHEIGHT + Consts.HELPFIELDY + (int)(Consts.HELPFIELDFONTSIZE * 1.5f * aLine++));
+		}
 		
 		// ContinentInfo Field
-		g.setFont(g.getFont().deriveFont(Consts.CONTINENTINFOFIELDFONTSIZE));
-		g.setColor(Consts.CONTINENTINFOFIELDBACKGROUND);
-		g.fillRect(Consts.CONTINENTINFOFIELDX, Consts.SCREENHEIGHT - (int)(Consts.CONTINENTINFOFIELDY + Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * GameCore.continents.size()), Consts.CONTINENTINFOFIELDWIDTH, (int)(Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * (GameCore.continents.size() + 1)));
-		g.setColor(Consts.CONTINENTINFOFIELDFOREGROUND);
-		for(int i = 0; i < GameCore.continents.size(); i++)
-			g.drawString(GameCore.continents.get(i).units + ": " + GameCore.continents.get(i).name, Consts.CONTINENTINFOFIELDX + Consts.CONTINENTINFOFIELDMARGIN, Consts.SCREENHEIGHT - (int)(Consts.CONTINENTINFOFIELDY + Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * i - Consts.CONTINENTINFOFIELDFONTSIZE * 0.3));
+		if(Consts.CONTINENTINFOFIELDVISIBLE)
+		{
+			g.setFont(g.getFont().deriveFont(Consts.CONTINENTINFOFIELDFONTSIZE));
+			g.setColor(Consts.CONTINENTINFOFIELDBACKGROUND);
+			g.fillRect(Consts.CONTINENTINFOFIELDX, Consts.SCREENHEIGHT - (int)(Consts.CONTINENTINFOFIELDY + Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * GameCore.continents.size()), Consts.CONTINENTINFOFIELDWIDTH, (int)(Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * (GameCore.continents.size() + 1)));
+			g.setColor(Consts.CONTINENTINFOFIELDFOREGROUND);
+			for(int i = 0; i < GameCore.continents.size(); i++)
+			{
+				if(GameCore.continentOccupied(i) >= 0)
+					g.setColor(Consts.PLAYERCOLORS[GameCore.continentOccupied(i) % Consts.MAXPLAYERCOUNT]);
+				else
+					g.setColor(Consts.CONTINENTINFOFIELDFOREGROUND);
+				g.drawString(GameCore.continents.get(i).units + ": " + GameCore.continents.get(i).name, Consts.CONTINENTINFOFIELDX + Consts.CONTINENTINFOFIELDMARGIN, Consts.SCREENHEIGHT - (int)(Consts.CONTINENTINFOFIELDY + Consts.CONTINENTINFOFIELDFONTSIZE * 1.3 * i - Consts.CONTINENTINFOFIELDFONTSIZE * 0.3));
+			}
+		}
 		
 		// CountDialog
-		if(countDialogVisible)
+		if(Consts.COUNTDIALOGVISIBLE)
 		{
 			g.setFont(g.getFont().deriveFont(Consts.COUNTDIALOGFONTSIZE));
 			g.setColor(Consts.COUNTDIALOGBACKGROUND);

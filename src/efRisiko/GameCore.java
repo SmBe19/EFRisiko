@@ -58,7 +58,7 @@ public class GameCore {
 		players = new ArrayList<Player>();
 		rnd = new Random(System.currentTimeMillis());
 		
-		if(!loadMap("content/maps/" + Consts.MAPNAME))
+		if(!loadMap(Consts.CONTENTFOLDER + Consts.MAPSFOLDER + Consts.MAPNAME))
 			return false;
 		
 		for(int i = 0; i < Consts.PLAYERCOUNT; i++)
@@ -90,6 +90,8 @@ public class GameCore {
 	 */
 	public static void nextPhase()
 	{
+		if(isPreparation || activeState == GameState.REINFORCE && unitsLeft > 0)
+			return;
 		switch(activeState)
 		{
 		case REINFORCE:
@@ -136,16 +138,7 @@ public class GameCore {
 			unitsLeft = Math.max(3, countPlayerRegions(activePlayer)/3);
 			for(int i = 0; i < continents.size(); i++)
 			{
-				boolean pos = true;
-				for(int j = 0; j < continents.get(i).regions.size(); j++)
-				{
-					if(regions.get(continents.get(i).regions.get(j)).player != activePlayer)
-					{
-						pos = false;
-						break;
-					}
-				}
-				if(pos)
+				if(continentOccupied(i) == activePlayer)
 					unitsLeft += continents.get(i).units;
 			}
 		}
@@ -175,6 +168,25 @@ public class GameCore {
 			if(regions.get(i).player < 0)
 				return false;
 		return true;
+	}
+	
+	/**
+	 * Überprüft, ob ein Kontinent vollständig besetzt ist
+	 * @param continent der zu überprüfende Kontinent
+	 * @return die Nummer des besetzenden Spielers, oder -1
+	 */
+	public static int continentOccupied(int continent)
+	{
+		int player = regions.get(continents.get(continent).regions.get(0)).player;
+				
+		for(int i = 0; i < continents.get(continent).regions.size(); i++)
+		{
+			if(regions.get(continents.get(continent).regions.get(i)).player != player)
+			{
+				return -1;
+			}
+		}
+		return player;
 	}
 	
 	/**

@@ -1,0 +1,45 @@
+EFRisiko Hilfe
+
+REINFORCE
+---
+Gebiete verstaerken
+ - LM Gebiet auswaehlen
+ - Anzah auswaehlen
+ - LM auf Gebiet
+
+ATTACK
+---
+Gebiete angreifen
+ - LM Gebiet auswaehlen
+ - RM Zielgebiet auswaehlen
+ 
+ BACK
+ ---
+ Truppen nachziehen
+  - Anzahl auswaehlen
+  - LM auf Gebiet
+
+MOVE
+---
+Truppen verschieben
+ - LM Gebiet auswaehlen
+ - Anzahl auswaehlen
+ - LM Zielgebiet auswaehlen
+
+Anzahl auswaehlen
+---
+Klick auf linke Haelfte
+ => Anzahl verringern
+Klick auf rechte Haelfte
+ => Anzahl erhoehen
+
+ - LM: +/- 1
+ - RM: +/- 5
+ - MM: +/- 20
+
+Tastatur
+---
+F1 - Hilfe
+F5 - Naechste Phase
+F9 - Kontinenteninfo ausblenden
+F11 - Infofeld verschieben
