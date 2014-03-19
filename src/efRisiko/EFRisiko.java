@@ -12,9 +12,20 @@ package efRisiko;
 public class EFRisiko {
 
 	public static void main(String[] args) {
-		System.out.println("EFRisiko\n(c) 2014 Benjamin Schmid");
+		System.out.println("EFRisiko\n© 2014 Benjamin Schmid");
 		
 		// ToDo: Startmenu
+		StartUp startUp = new StartUp();
+		startUp.show();
+		
+		while(!startUp.finished)
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}
 		
 		System.out.println("Initialize GameCore...");
 		

@@ -229,7 +229,7 @@ public class GameInterface extends JPanel {
 	public void show()
 	{
 		setFocusable(true);
-		frame = new JFrame("EFRisiko");
+		frame = new JFrame(Consts.GAMENAME);
 		frame.add(this);
 		frame.setSize(Consts.SCREENWIDTH, Consts.SCREENHEIGHT);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

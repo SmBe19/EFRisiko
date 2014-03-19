@@ -16,11 +16,11 @@ public class Consts {
 	public static int DEBUGSTARTUNITS = 5;
 	public static boolean AUTOPLACEUNITS = true;
 	
-	public static int SCREENWIDTH = 400;
-	public static int SCREENHEIGHT = 400;
+	public static int SCREENWIDTH = 800;
+	public static int SCREENHEIGHT = 800;
 	
 	public static int PLAYERCOUNT = 4;
-	public static String MAPNAME = "Risiko.txt";
+	public static String MAPNAME = "map1.txt";
 	
 	public static String CONTENTFOLDER = "content/";
 	public static String MAPSFOLDER = "maps/";
