@@ -10,6 +10,7 @@
 package efRisiko;
 
 public class Player {
-	public enum PlayerControlType { LOCAL, REMOTE, AI };
+	public enum PlayerControlType { LOCAL, /*REMOTE,*/ AI };
 	public PlayerControlType controlType;
+	public String connectionString;
 }

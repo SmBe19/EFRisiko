@@ -39,7 +39,7 @@ public class Consts {
 	
 	// Graph
 	public static Color NEUTRALPLAYERCOLOR = Color.gray;
-	public static Color[] PLAYERCOLORS = new Color[] {Color.red, Color.blue, Color.green, Color.orange, Color.cyan, Color.magenta};
+	public static Color[] PLAYERCOLORS = new Color[] {Color.red, Color.blue, Color.green, Color.orange, Color.cyan, Color.magenta, Color.pink, new Color(128, 125, 255)};
 	public static int MAXPLAYERCOUNT = PLAYERCOLORS.length;
 	public static int VERTEXSIZE = 50;
 	public static float VERTEXFONTSIZE = 20f;

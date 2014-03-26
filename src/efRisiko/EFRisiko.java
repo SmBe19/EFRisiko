@@ -14,7 +14,6 @@ public class EFRisiko {
 	public static void main(String[] args) {
 		System.out.println("EFRisiko\n© 2014 Benjamin Schmid");
 		
-		// ToDo: Startmenu
 		StartUp startUp = new StartUp();
 		startUp.show();
 		
@@ -22,18 +21,16 @@ public class EFRisiko {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return;
 			}
 		
 		System.out.println("Initialize GameCore...");
 		
-		// Set Playercount, Mapname
-		
 		if(!GameCore.init())
 		{
 			System.out.println("Init failed");
+			startUp.close();
 			return;
 		}
 		
@@ -41,7 +38,11 @@ public class EFRisiko {
 		if(Consts.ISDEBUG)
 			GameCore.unitsLeft = Consts.PLAYERCOUNT * Consts.DEBUGSTARTUNITS;
 		
-		// Set Playertype
+		for(int i = 0; i < Consts.PLAYERCOUNT; i++)
+		{
+			GameCore.players.get(i).controlType = startUp.playertypes[i];
+			GameCore.players.get(i).connectionString = startUp.playertypesConnection[i];
+		}
 		
 		System.out.println("Done!");
 		

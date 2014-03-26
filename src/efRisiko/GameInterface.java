@@ -345,7 +345,7 @@ public class GameInterface extends JPanel {
 		// InfoField
 		String splitter = Consts.INFOFIELDTITLEBAR ? "; " : "\n";
 		StringBuilder text = new StringBuilder();
-		text.append("Player: " + GameCore.activePlayer);
+		text.append("Player: " + (GameCore.activePlayer+1));
 		text.append(splitter + "Phase: ");
 		if(GameCore.isPreparation)
 			text.append("PREP");

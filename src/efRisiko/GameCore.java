@@ -61,6 +61,9 @@ public class GameCore {
 		if(!loadMap(Consts.CONTENTFOLDER + Consts.MAPSFOLDER + Consts.MAPNAME))
 			return false;
 		
+		if(regions.size() < Consts.PLAYERCOUNT)
+			return false;
+		
 		for(int i = 0; i < Consts.PLAYERCOUNT; i++)
 		{
 			Player p = new Player();
