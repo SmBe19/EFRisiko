@@ -1,0 +1,263 @@
+Kommunikation zwischen AI und dem GameCore
+------------------------------------------
+
+Die Kommunikation läuft über Std I/O über das hier definierte Protokoll.
+
+Protokoll
+---------
+
+# Allgemein
+Nachrichten beginnen mit einem Statuscode, worauf optional Payload auf der nächsten Zeile(n) folgt.
+
+# Statuscodes
+#1x Aktion erfolgreich (GC)
+#2x Fehlerhafte Aktion (GC)
+#3x Daten              (GC)
+#4x Datenanfrage       (AI)
+#5x Aktion             (AI)
+#6x Aktion anfordern   (GC)
+#7x Debug              (AI)
+
+#10 Ok
+#11 Ok, Angriff erfolgreich
+#12 Ok, Angriff fehlgeschlagen
+#13 Rundenbeginn
+
+#20 Allgemeiner Fehler
+#21 ungültiges Zielfeld
+#22 ungültiges Startfeld
+#23 ungültige Einheitenzahl
+
+#30 Allgemeine Spielinfos (Spielerzahl)
+#31 Karte
+#32 Kontinente
+#33 Aktueller Spielstand
+
+#40 Allgemeine Spielinfos
+#41 Karte
+#42 Kontinente
+#43 Aktueller Spielstand
+
+#50 Einheiten platzieren
+#51 Angreifen
+#52 Einheiten nachziehen
+#53 Einheiten verschieben
+#54 Nächste Phase
+
+#60 Einheiten platzieren
+#61 Angreifen
+#62 Einheiten nachziehen
+#63 Einheiten verschieben
+#64 Spiel beenden
+
+#70 Debug einschalten
+#71 Debug ausschalten
+#72 Nachricht ausgeben
+
+GDay   Initialisiere die AI
+WazUp  AI bereit
+
+# Statuscodes erklärt
+#10 Ok
+Die Aktion war erfolgreich
+Kein Payload
+
+#11 Ok, Angriff erfolgreich
+Der Angriff war erfolgreich, das Zielgebiet befindet sich nun unter eigener Kontrolle.
+#62 folgt.
+Kein Payload
+
+#12 Ok, Angriff fehlgeschlagen
+Der Angriff war nicht erfolgreich, das Zielgebit befindet sich nicht unter eigener Kontrolle.
+Kein Payload
+
+#13 Rundenbeginn
+Eine neue Runde beginnt.
+#33 folgt.
+Kein Payload
+
+#20 Allgemeiner Fehler
+Es trat ein Fehler bei der Kommunikation auf. Die AI sollte sicherstellen, dass sie alle Spielinformationen auf dem aktuellen Stand besitzt (ev. neu anfordern). Der GC teilt mit, welche Informationen er als nächstes braucht.
+Kein Payload
+
+#21 ungültiges Zielfeld
+Das Zielfeld einer Aktion war ungültig (d.h. beim Platzieren vom Gegner besetzt bzw. beim Angreifen nicht vom Gegner besetzt bzw. beim verschieben nicht mit dem Startfeld verbunden).
+Kein Payload
+
+#22 ungültiges Startfeld
+Das Startfeld einer Aktion war ungültig (d.h beim Angreifen vom Gegner besetzt).
+Kein Payload
+
+#23 ungültige Einheitenzahl
+Es sollten zu viele oder zu wenige Einheiten platziert bzw. verschoben werden.
+Kein Payload
+
+#30 Allgemeine Spielinfos
+Es folgen allgemeine Infos zum Spiel.
+Payload:
+n // Anzahl Spieler
+
+#31 Karte
+Es folgt die Karte.
+Payload:
+v e // Anzahl Knoten, Kanten
+// es folgen e Zeilen
+a b // Knoten a und b sind verbunden
+
+#32 Kontinente
+Es folgen die Kontinente.
+Payload:
+k // Anzahl Kontinente
+// es folgen 2k Zeilen, jeweils:
+m_i // Anzahl Einheiten für den Kontinent i
+o p q ... // Leerzeichengetrennte Liste aller Knoten auf Kontinent
+
+#33 Aktueller Spielstand
+Es folgt der aktuelle Spielstand. Wird jeweils zu Beginn einer Runde übertragen.
+Payload:
+// es folgen n (Anzahl Knoten) Zeilen
+a_i b_i // Knoten i gehört zu Spieler a_i und enthält b_i Einheiten
+
+#40 Allgemeine Spielinfos
+Der GC soll die allgemeinen Spielinfos übertragen.
+GC antwortet mit #30
+Kein Payload
+
+#41 Karte
+Der GC soll die Karte übertragen.
+GC antwortet mit #31
+Kein Payload
+
+#42 Kontinente
+Der GC soll die Kontinente übertragen.
+GC antwortet mit #32
+Kein Payload
+
+#43 Aktueller Spielzustand
+Der GC soll den aktuellen Spielzustand übertragen.
+GC antwortet mit #33
+Kein Payload
+
+#50 Einheiten platzieren
+Die AI möchte Einheiten platzieren (in Vorbereitungsphase und in 1. Phase einer Runde).
+GC antwortet mit #10, falls alle Einheiten platziert wurden gefolgt von #61
+Payload:
+o p // Knoten, Anzahl Einheiten
+
+#51 Angreifen
+Die AI möchte angreifen (in Angriffsphase).
+GC antwortet mit (#11 und #62) oder #12
+Payload:
+o p // Startknoten, Zielknoten
+
+#52 Einheiten nachziehen
+Die AI möchte Einheiten auf das eroberte Feld nachziehen (in Angriffsphase, nach einem erfolgreichen Angriff).
+GC antwortet mit #10
+Payload:
+o // Anzahl Einheiten
+
+#53 Einheiten verschieben
+Die AI möchte Einheiten verschieben (in letzter Phase einer Runde).
+GC antwortet mit #10
+Payload:
+o p q // Startknoten, Zielknoten, Anzahl Einheiten
+
+#54 Nächste Phase
+Die AI möchte nicht weiter angreifen bzw. keine Einheiten verschieben und in die nächse Phase wechseln (in Angriffsphase und letzter Phase einer Runde)
+GC antwortet mit #63 oder #
+Kein Payload
+
+#60 Einheiten platzieren
+Die AI soll Einheiten platzieren (in Vorbereitungsphase un in 1. Phase einer Runde).
+AI antwortet mit #50
+Payload:
+o // Anzah zu platzierende Einheiten
+
+#61 Angreifen
+Die AI soll angreifen (in Angriffsphase).
+AI antwortet mit #51 oder #54
+Kein Payload
+
+#62 Einheiten nachziehen
+Die AI soll Einheiten auf das eroberte Feld nachziehen (in Angriffsphase)
+AI antwortet mit #51, #52 oder #54
+Payload:
+o p // Startknoten, Zielknoten
+
+#63 Einheiten verschieben
+Die AI soll Einheiten verschieben (in letzter Phase einer Runde).
+AI antwortet mit #53 oder #54
+Kein Payload
+
+#64 Spiel beenden
+Das Spiel ist fertig. Die AI soll gegebenfalls Ressourcen freigeben.
+Kein Payload
+
+#70 Debug einschalten
+Der GC gibt die gesamte Kommunikation aus
+Kein Payload
+#71 Debug ausschalten
+Der GC gibt die Kommunikation nicht mehr aus
+#72 Nachricht ausgeben
+Der GC gibt die Nachricht aus
+Payload:
+"n" // Nachricht
+
+Beispiel
+--------
+# Verbindungsaufnahme
+GC: GDay
+AI: WazUp
+GC: #30
+GC: n // n = Spielerzahl
+GC: #31
+GC: v e // v = Knotenzahl; e = Kantenzahl
+// e Zeilen
+GC: a b // Knoten a und b sind verbunden
+//
+GC: #32
+GC: k // k = Kontinentenzahl
+// 2k Zeilen
+GC: m // m = Einheitenzahl
+GC: o p q ... // Knoten auf Kontinent
+//
+AI: #10
+
+# Anfangsphase
+GC: #33
+// n Zeilen; n = Knotenzahl
+GC: o p // o = Spieler; p = Einheitenzahl
+//
+GC: #60
+GC: 1 // 1 Einheit
+AI: #50
+AI: o 1 // o = Knoten
+GC: #10
+
+# Spielverlauf
+GC: #33
+// n Zeilen; n = Knotenzahl
+GC: o p // o = Spieler; p = Einheitenzahl
+//
+GC: #60
+GC: o // o = Einheitenzahl
+AI: #50
+// bis Einheiten aufgebraucht
+AI: o p // o = Knoten; p = Einheitenzahl
+GC: #10
+//
+// Beliebig oft wiederholen
+GC: #61
+AI: #51
+AI: o p // o = Startknoten; p = Zielknoten;
+GC: #11
+GC: #62
+AI: #52
+AI: o // o = Einheitenzahl
+GC: #10
+//
+AI: #54
+GC: #63
+AI: #53
+AI: o p q // o = Startknoten; p = Zielknoten; q = Anzahl Einheiten;
+GC: #10

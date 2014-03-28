@@ -314,23 +314,13 @@ public class GameCore {
 		else
 			regions.get(source).units--;
 		
-		if(regions.get(drain).units <= 0)
+		if(attackResA2 > 0 && attackResD2 > 0 && regions.get(drain).units > 0)
 		{
-			regions.get(drain).player = activePlayer;
-			regions.get(drain).units = 1;
-			regions.get(source).units--;
-			attackSuccess = true;
-			activeState = GameState.BACK;
-			return true;
+			if(attackResA2 > attackResD2)
+				regions.get(drain).units--;
+			else
+				regions.get(source).units--;
 		}
-		
-		if(attackResA2 == 0 || attackResD2 == 0)
-			return true;
-		
-		if(attackResA2 > attackResD2)
-			regions.get(drain).units--;
-		else
-			regions.get(source).units--;
 		
 		if(regions.get(drain).units <= 0)
 		{
