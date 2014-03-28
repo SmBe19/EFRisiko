@@ -31,6 +31,7 @@ public class GameCore {
 	public static ArrayList<Region> regions;
 	public static ArrayList<Continent> continents;
 	public static ArrayList<Player> players;
+	public static int edgeCount;
 	
 	public static BufferedImage backgroundImage;
 	public static Dimension fieldSize;
@@ -44,6 +45,8 @@ public class GameCore {
 	public static int attackResA1, attackResA2, attackResA3, attackResD1, attackResD2;
 	public static boolean attackSuccess;
 	public static int attackSource, attackDrain;
+	
+	public static int errorCode;
 	
 	public static Random rnd;
 	
@@ -70,7 +73,6 @@ public class GameCore {
 			p.controlType = PlayerControlType.LOCAL;
 			players.add(p);
 		}
-
 		
 		unitsLeft = 50 - Consts.PLAYERCOUNT * 5;
 		unitsLeft *= Consts.PLAYERCOUNT;
@@ -78,23 +80,33 @@ public class GameCore {
 		isPreparation = true;
 		activePlayer = rnd.nextInt(Consts.PLAYERCOUNT);
 		activeState = GameState.REINFORCE;
-		if(Consts.AUTOPLACEUNITS)
+		return true;
+	}
+	
+	/**
+	 * Gibt alle Ressourcen frei und beendet die AI's
+	 */
+	public static void desinit()
+	{
+		for(int i = 0; i < players.size(); i++)
 		{
-			while(isPreparation)
+			if(players.get(i).controlType == PlayerControlType.AI)
 			{
-				placeUnits(rnd.nextInt(regions.size()), 1);
+				players.get(i).ai.placeOrder(64);
 			}
 		}
-		return true;
 	}
 	
 	/**
 	 * Wechselt zur nächsten Phase für den aktuellen Spieler
 	 */
-	public static void nextPhase()
+	public static boolean nextPhase()
 	{
 		if(isPreparation || activeState == GameState.REINFORCE && unitsLeft > 0)
-			return;
+		{
+			errorCode = 24;
+			return false;
+		}
 		switch(activeState)
 		{
 		case REINFORCE:
@@ -110,6 +122,19 @@ public class GameCore {
 			nextPlayer();
 			break;
 		}
+		if(players.get(activePlayer).controlType == PlayerControlType.AI)
+		{
+			switch(activeState)
+			{
+			case ATTACK:
+				players.get(activePlayer).ai.placeOrder(61);
+				break;
+			case MOVE:
+				players.get(activePlayer).ai.placeOrder(63);
+				break;
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -121,7 +146,7 @@ public class GameCore {
 		{
 			activePlayer++;
 			activePlayer %= Consts.PLAYERCOUNT;
-		} while(countPlayerRegions(activePlayer) == 0 && !isPreparation);
+		} while(!isPreparation && countPlayerRegions(activePlayer) == 0);
 		
 		activeState = GameState.REINFORCE;
 		
@@ -133,7 +158,17 @@ public class GameCore {
 			{
 				isPreparation = false;
 				activePlayer = rnd.nextInt(Consts.PLAYERCOUNT);
+				
+				for(int i = 0; i < players.size(); i++)
+				{
+					if(players.get(i).controlType == PlayerControlType.AI)
+					{
+						players.get(i).ai.write("#13");
+					}
+				}
+				
 				nextPlayer();
+				return;
 			}
 		}
 		else
@@ -144,6 +179,14 @@ public class GameCore {
 				if(continentOccupied(i) == activePlayer)
 					unitsLeft += continents.get(i).units;
 			}
+		}
+		
+		// AI
+		if(!(isPreparation && Consts.AUTOPLACEUNITS) && players.get(activePlayer).controlType == PlayerControlType.AI)
+		{
+			players.get(activePlayer).ai.write("#14");
+			players.get(activePlayer).ai.processInput("#43");
+			players.get(activePlayer).ai.placeOrder(60);
 		}
 	}
 	
@@ -200,16 +243,28 @@ public class GameCore {
 	public static boolean placeUnits(int region, int count)
 	{
 		if(!isPreparation && activeState != GameState.REINFORCE)
+		{
+			errorCode = 24;
 			return false;
+		}
 		
 		if(regions.get(region).player >= 0 && regions.get(region).player != activePlayer)
+		{
+			errorCode = 21;
 			return false;
+		}
 		
 		if(isPreparation && regions.get(region).player >= 0 && !allRegionsOccupied())
+		{
+			errorCode = 21;
 			return false;
+		}
 		
 		if(unitsLeft < count || isPreparation && count > 1 || count < 1)
+		{
+			errorCode = 23;
 			return false;
+		}
 		
 		regions.get(region).player = activePlayer;
 		regions.get(region).units += count;
@@ -232,13 +287,22 @@ public class GameCore {
 	public static boolean backRegion(int count)
 	{
 		if(activeState != GameState.BACK)
+		{
+			errorCode = 24;
 			return false;
+		}
 		
 		if(count < 0)
+		{
+			errorCode = 23;
 			return false;
+		}
 		
 		if(regions.get(attackSource).units <= count)
+		{
+			errorCode = 23;
 			return false;
+		}
 		
 		regions.get(attackSource).units -= count;
 		regions.get(attackDrain).units += count;
@@ -258,16 +322,34 @@ public class GameCore {
 	public static boolean attack(int source, int drain)
 	{
 		if(activeState != GameState.ATTACK)
+		{
+			errorCode = 24;
 			return false;
+		}
 		
-		if(regions.get(source).player != activePlayer || regions.get(drain).player == activePlayer)
+		if(regions.get(source).player != activePlayer)
+		{
+			errorCode = 22;
 			return false;
+		}
+		
+		if(regions.get(drain).player == activePlayer)
+		{
+			errorCode = 23;
+			return false;
+		}
 		
 		if(regions.get(source).units < 2)
+		{
+			errorCode = 22;
 			return false;
+		}
 		
 		if(!regions.get(source).connections.contains(drain))
+		{
+			errorCode = 21;
 			return false;
+		}
 		
 		attackResA1 = attackResA2 = attackResA3 = attackResD1 = attackResD2 = 0;
 		attackSource = source;
@@ -344,16 +426,34 @@ public class GameCore {
 	public static boolean move(int source, int drain, int count)
 	{
 		if(activeState != GameState.MOVE)
+		{
+			errorCode = 24;
 			return false;
+		}
 		
-		if(regions.get(source).player != activePlayer || regions.get(drain).player != activePlayer)
+		if(regions.get(source).player != activePlayer)
+		{
+			errorCode = 22;
 			return false;
+		}
+		
+		if(regions.get(drain).player != activePlayer)
+		{
+			errorCode = 21;
+			return false;
+		}
 		
 		if(count <= 0)
+		{
+			errorCode = 23;
 			return false;
+		}
 		
 		if(regions.get(source).units <= count)
+		{
+			errorCode = 23;
 			return false;
+		}
 		
 		LinkedList<Integer> q = new LinkedList<Integer>();
 		ArrayList<Integer> visited = new ArrayList<Integer>();
@@ -372,7 +472,10 @@ public class GameCore {
 		}
 		
 		if(!visited.contains(drain))
+		{
+			errorCode = 21;
 			return false;
+		}
 		
 		regions.get(source).units -= count;
 		regions.get(drain).units += count;
@@ -423,6 +526,8 @@ public class GameCore {
 					int n, m;
 					n = Integer.parseInt(aLine.split(" ")[0]);
 					m = Integer.parseInt(aLine.split(" ")[1]);
+					
+					edgeCount = m;
 					
 					for(int i = 0; i < n; i++)
 						regions.add(new Region());

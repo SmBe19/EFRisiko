@@ -16,6 +16,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,24 +46,16 @@ public class GameInterface extends JPanel {
 		this.addMouseListener(new MouseListener() {
 			
 			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				
-			}
+			public void mouseReleased(MouseEvent arg0) {}
 			
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				
-			}
+			public void mousePressed(MouseEvent arg0) {}
 			
 			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-			}
+			public void mouseExited(MouseEvent arg0) {}
 			
 			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-			}
+			public void mouseEntered(MouseEvent arg0) {}
 			
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -191,14 +185,10 @@ public class GameInterface extends JPanel {
 		this.addKeyListener(new KeyListener() {
 			
 			@Override
-			public void keyTyped(KeyEvent arg0) {
-				
-			}
+			public void keyTyped(KeyEvent arg0) {}
 			
 			@Override
-			public void keyReleased(KeyEvent arg0) {
-				
-			}
+			public void keyReleased(KeyEvent arg0) {}
 			
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -216,6 +206,8 @@ public class GameInterface extends JPanel {
 				case Consts.INFOFIELDCHANGEKEY:
 					Consts.INFOFIELDTITLEBAR = !Consts.INFOFIELDTITLEBAR;
 					break;
+				case Consts.EXITGAMEKEY:
+					frame.dispose();
 				}
 				
 				repaint();
@@ -234,6 +226,31 @@ public class GameInterface extends JPanel {
 		frame.setSize(Consts.SCREENWIDTH, Consts.SCREENHEIGHT);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		frame.addWindowListener(new WindowListener() {
+			
+			@Override
+			public void windowOpened(WindowEvent arg0) {}
+			
+			@Override
+			public void windowIconified(WindowEvent arg0) {}
+			
+			@Override
+			public void windowDeiconified(WindowEvent arg0) {}
+			
+			@Override
+			public void windowDeactivated(WindowEvent arg0) {}
+			
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				GameCore.desinit();
+			}
+			
+			@Override
+			public void windowClosed(WindowEvent arg0) {}
+			
+			@Override
+			public void windowActivated(WindowEvent arg0) {}
+		});
 		requestFocusInWindow();
 		
 		readHelpFile();

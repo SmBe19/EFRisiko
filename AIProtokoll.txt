@@ -21,12 +21,14 @@ Nachrichten beginnen mit einem Statuscode, worauf optional Payload auf der nächs
 #10 Ok
 #11 Ok, Angriff erfolgreich
 #12 Ok, Angriff fehlgeschlagen
-#13 Rundenbeginn
+#13 Vorbereitung endet
+#14 Rundenbeginn
 
 #20 Allgemeiner Fehler
 #21 ungültiges Zielfeld
 #22 ungültiges Startfeld
 #23 ungültige Einheitenzahl
+#24 falsche Phase
 
 #30 Allgemeine Spielinfos (Spielerzahl)
 #31 Karte
@@ -71,7 +73,11 @@ Kein Payload
 Der Angriff war nicht erfolgreich, das Zielgebit befindet sich nicht unter eigener Kontrolle.
 Kein Payload
 
-#13 Rundenbeginn
+#13 Vorbereitung endet
+Die Vorbereitungsphase ist nun vorüber. Wird vor der ersten richtigen Runde gesendet.
+Kein Payload
+
+#14 Rundenbeginn
 Eine neue Runde beginnt.
 #33 folgt.
 Kein Payload
@@ -92,10 +98,15 @@ Kein Payload
 Es sollten zu viele oder zu wenige Einheiten platziert bzw. verschoben werden.
 Kein Payload
 
+#24 falsche Phase
+Die AI wollte eine Aktion ausführen, die in der aktuellen Phase nicht möglich ist.
+Kein Payload
+
 #30 Allgemeine Spielinfos
 Es folgen allgemeine Infos zum Spiel.
 Payload:
 n // Anzahl Spieler
+m // Spielernummer der AI
 
 #31 Karte
 Es folgt die Karte.
@@ -109,7 +120,7 @@ Es folgen die Kontinente.
 Payload:
 k // Anzahl Kontinente
 // es folgen 2k Zeilen, jeweils:
-m_i // Anzahl Einheiten für den Kontinent i
+m_i n_i // Anzahl Einheiten für den Kontinent i, Anzahl Knoten auf Kontinent
 o p q ... // Leerzeichengetrennte Liste aller Knoten auf Kontinent
 
 #33 Aktueller Spielstand
@@ -164,7 +175,7 @@ o p q // Startknoten, Zielknoten, Anzahl Einheiten
 
 #54 Nächste Phase
 Die AI möchte nicht weiter angreifen bzw. keine Einheiten verschieben und in die nächse Phase wechseln (in Angriffsphase und letzter Phase einer Runde)
-GC antwortet mit #63 oder #
+GC antwortet mit #63 oder #14
 Kein Payload
 
 #60 Einheiten platzieren
@@ -196,12 +207,24 @@ Kein Payload
 #70 Debug einschalten
 Der GC gibt die gesamte Kommunikation aus
 Kein Payload
+
 #71 Debug ausschalten
 Der GC gibt die Kommunikation nicht mehr aus
+
 #72 Nachricht ausgeben
 Der GC gibt die Nachricht aus
 Payload:
 "n" // Nachricht
+
+GDay Initialisiere die AI
+Die AI soll sich initialisieren.
+AI antwortet mit WazUp
+Kein Payload
+
+WazUp AI bereit
+Die AI ist bereit.
+GC antwortet mit #30
+Kein Payload
 
 Beispiel
 --------
@@ -210,6 +233,7 @@ GC: GDay
 AI: WazUp
 GC: #30
 GC: n // n = Spielerzahl
+GC: m // m = Spielernummer der AI
 GC: #31
 GC: v e // v = Knotenzahl; e = Kantenzahl
 // e Zeilen
@@ -218,10 +242,9 @@ GC: a b // Knoten a und b sind verbunden
 GC: #32
 GC: k // k = Kontinentenzahl
 // 2k Zeilen
-GC: m // m = Einheitenzahl
+GC: m n // m = Einheitenzahl; n = Knotenzahl
 GC: o p q ... // Knoten auf Kontinent
-//
-AI: #10
+//s
 
 # Anfangsphase
 GC: #33
@@ -235,6 +258,7 @@ AI: o 1 // o = Knoten
 GC: #10
 
 # Spielverlauf
+GC: #14
 GC: #33
 // n Zeilen; n = Knotenzahl
 GC: o p // o = Spieler; p = Einheitenzahl

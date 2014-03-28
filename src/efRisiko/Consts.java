@@ -20,13 +20,15 @@ public class Consts {
 	public static int SCREENWIDTH = 800;
 	public static int SCREENHEIGHT = 800;
 	
-	public static int PLAYERCOUNT = 4;
+	public static int PLAYERCOUNT = 2;
 	public static String MAPNAME = "Risiko.txt";
 	
 	public static String CONTENTFOLDER = "content/";
 	public static String MAPSFOLDER = "maps/";
 	
 	// Interface-Settings
+	
+	public static final int EXITGAMEKEY = KeyEvent.VK_ESCAPE;
 	
 	// Titlebar
 	public static String GAMENAME = "Risiko";

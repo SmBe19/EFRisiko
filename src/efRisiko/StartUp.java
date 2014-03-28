@@ -1,3 +1,11 @@
+/**
+ * StartUp.java
+ * (c) 2014 Benjamin Schmid
+ * Created 19.03.2014
+ * 
+ * StartUp Menu
+ */
+
 package efRisiko;
 
 import java.awt.Color;

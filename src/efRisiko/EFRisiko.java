@@ -9,6 +9,8 @@
 
 package efRisiko;
 
+import efRisiko.Player.PlayerControlType;
+
 public class EFRisiko {
 
 	public static void main(String[] args) {
@@ -47,7 +49,25 @@ public class EFRisiko {
 			{
 				GameCore.players.get(i).controlType = startUp.playertypes[i];
 				GameCore.players.get(i).connectionString = startUp.playertypesConnection[i];
+				if(startUp.playertypes[i] == PlayerControlType.AI)
+				{
+					GameCore.players.get(i).ai = new AI(startUp.playertypesConnection[i], i);
+				}
 			}
+		else
+		{
+			GameCore.players.get(0).controlType = PlayerControlType.AI;
+			GameCore.players.get(0).connectionString = "C:\\Users\\Benjamin\\Documents\\workspace\\EFRisiko\\ai\\DemoAI\\bin\\Debug\\DemoAI.exe";
+			GameCore.players.get(0).ai = new AI(GameCore.players.get(0).connectionString, 0);
+		}
+
+		if(Consts.AUTOPLACEUNITS)
+		{
+			while(GameCore.isPreparation)
+			{
+				GameCore.placeUnits(GameCore.rnd.nextInt(GameCore.regions.size()), 1);
+			}
+		}
 		
 		System.out.println("Done!");
 		
