@@ -1,6 +1,8 @@
 #include <iostream>
+#include <cstdlib>
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -16,9 +18,16 @@ int lastAttackSource, lastAttackDrain;
 
 bool stayInLoop;
 
+ofstream log;
+
 void readGameInfo()
 {
     cin >> playerCount >> aiPlayer;
+    log.close();
+    string logname = "logX.txt";
+    logname[3] = (char)(aiPlayer+'0');
+    log.open(&logname[0]);
+    log << "I'm N° " << aiPlayer << endl;
 }
 
 void readGraph()
@@ -73,9 +82,25 @@ void placeUnit()
 
     if(isPreparation)
     {
+        for(int i = rand() % regions.size(); i < regions.size(); i++)
+        {
+            if(regions[i].first == -1)
+            {
+                cout << "#50" << endl << i << " " << 1 << endl;
+                return;
+            }
+        }
         for(int i = 0; i < regions.size(); i++)
         {
             if(regions[i].first == -1)
+            {
+                cout << "#50" << endl << i << " " << 1 << endl;
+                return;
+            }
+        }
+        for(int i = 0; i < regions.size(); i++)
+        {
+            if(regions[i].first == aiPlayer)
             {
                 cout << "#50" << endl << i << " " << 1 << endl;
             }
@@ -85,6 +110,15 @@ void placeUnit()
     {
         while(n > 0)
         {
+            for(int i = rand() % regions.size(); i < regions.size() && n > 0; i++)
+            {
+                if(regions[i].first == aiPlayer)
+                {
+                    cout << "#50" << endl << i << " " << 1 << endl;
+                    n--;
+                    continue;
+                }
+            }
             for(int i = 0; i < regions.size() && n > 0; i++)
             {
                 if(regions[i].first == aiPlayer)
@@ -100,10 +134,30 @@ void placeUnit()
 void attack()
 {
     if(alreadyAttacked)
+    {
+        cout << "#54" << endl;
         return;
+    }
+    for(int i = rand() % regions.size(); i < regions.size(); i++)
+    {
+        if(regions[i].first == aiPlayer && regions[i].second > 4)
+        {
+            for(int j = 0; j < graph[i].size(); j++)
+            {
+                if(regions[graph[i][j]].first != aiPlayer)
+                {
+                    lastAttackSource = i;
+                    lastAttackDrain = graph[i][j];
+                    cout << "#51" << endl << lastAttackSource << " " << lastAttackDrain << endl;
+                    alreadyAttacked = true;
+                    return;
+                }
+            }
+        }
+    }
     for(int i = 0; i < regions.size(); i++)
     {
-        if(regions[i].first == aiPlayer && regions[i].second > 3)
+        if(regions[i].first == aiPlayer && regions[i].second > 4)
         {
             for(int j = 0; j < graph[i].size(); j++)
             {
@@ -123,10 +177,18 @@ void attack()
 
 void attackSuccess()
 {
+    int a, b;
+    cin >> a >> b;
+    regions[lastAttackSource].second = a;
+    regions[lastAttackDrain].second = b;
 }
 
 void attackFailed()
 {
+    int a, b;
+    cin >> a >> b;
+    regions[lastAttackSource].second = a;
+    regions[lastAttackDrain].second = b;
     alreadyAttacked = false;
 }
 
@@ -144,6 +206,7 @@ void moveUnits()
 
 void processInput(string s)
 {
+    log << "in: " << s << endl;
     if(s == "#11")
     {
         attackSuccess();
@@ -196,6 +259,12 @@ void processInput(string s)
     {
         stayInLoop = false;
     }
+
+    if(s == "#20" || s == "#21" || s == "#22" || s == "#23" || s == "#24")
+    {
+        cout << "#44" << endl;
+        log << "error" << endl;
+    }
 }
 
 int main()
@@ -209,9 +278,12 @@ int main()
 
     isPreparation = true;
 
+    log.open("logX.txt");
+
     stayInLoop = true;
     while(stayInLoop && cin >> input)
         processInput(input);
 
+    log.close();
     return 0;
 }

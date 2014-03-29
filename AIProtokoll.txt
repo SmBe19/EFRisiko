@@ -39,6 +39,7 @@ Nachrichten beginnen mit einem Statuscode, worauf optional Payload auf der nächs
 #41 Karte
 #42 Kontinente
 #43 Aktueller Spielstand
+#44 Aktuelle Aufgabe
 
 #50 Einheiten platzieren
 #51 Angreifen
@@ -67,11 +68,13 @@ Kein Payload
 #11 Ok, Angriff erfolgreich
 Der Angriff war erfolgreich, das Zielgebiet befindet sich nun unter eigener Kontrolle.
 #62 folgt.
-Kein Payload
+Payload:
+n m // Einheiten auf Startknoten, Zielknoten
 
 #12 Ok, Angriff fehlgeschlagen
 Der Angriff war nicht erfolgreich, das Zielgebit befindet sich nicht unter eigener Kontrolle.
-Kein Payload
+Payload:
+n m // Einheiten auf Startknoten, Zielknoten
 
 #13 Vorbereitung endet
 Die Vorbereitungsphase ist nun vorüber. Wird vor der ersten richtigen Runde gesendet.
@@ -147,6 +150,11 @@ Kein Payload
 #43 Aktueller Spielzustand
 Der GC soll den aktuellen Spielzustand übertragen.
 GC antwortet mit #33
+Kein Payload
+
+#44 Aktuelle Aufgabe
+Der GC soll die aktuelle Aufgabe erneut senden.
+GC antwortet mit #60, #61, #62 oder #63
 Kein Payload
 
 #50 Einheiten platzieren

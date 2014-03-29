@@ -25,6 +25,8 @@ public class AI {
 	int activeOrder;
 	boolean handleInputActive;
 	
+	String preWriteMsg;
+	
 	String line;
 	boolean debug;
 	
@@ -37,6 +39,7 @@ public class AI {
 	{
 		connectionString = ai;
 		playerNumber = num;
+		
 		try {
 			process = new ProcessBuilder(ai).start();
 			in = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -64,8 +67,12 @@ public class AI {
 	public void write(Object s, boolean noFlush)
 	{
 		try {
+			if(preWriteMsg != null)
+				writePreWrite();
 			if(debug)
-				System.out.println("GC: " + s);
+				System.out.println(playerNumber + "_GC: " + s);
+			if(s.toString().startsWith("#2"))
+				System.out.println("-----------------------");
 			out.write(s.toString() + "\n");
 			if(!noFlush)
 				out.flush();
@@ -81,6 +88,30 @@ public class AI {
 	public void write(Object s)
 	{
 		write(s, false);
+	}
+	
+	/**
+	 * Speichert eine Nachricht, die beim nächsten Aufruf von write geschrieben wird.
+	 * @param s die Nachricht. null übergeben, um zu wiederrufen
+	 */
+	public void preWrite(Object s)
+	{
+		if(s != null)
+			preWriteMsg = s.toString();
+		else
+			preWriteMsg = null;
+	}
+	
+	/**
+	 * Schreibt die zwischengespeicherte Nachricht
+	 */
+	public void writePreWrite()
+	{
+		if(preWriteMsg == null)
+			return;
+		String tmp = preWriteMsg;
+		preWriteMsg = null;
+		write(tmp);
 	}
 	
 	/**
@@ -105,7 +136,7 @@ public class AI {
 		try {
 			res = in.readLine();
 			if(debug)
-				System.out.println("AI: " + res);
+				System.out.println(playerNumber + "_AI: " + res);
 			return res;
 		} catch (IOException e) {
 			//e.printStackTrace();
@@ -119,6 +150,7 @@ public class AI {
 	 */
 	public void placeOrder(int code)
 	{
+		int oldActiveOrder = activeOrder;
 		activeOrder = code;
 		write("#" + code);
 		switch(code)
@@ -134,7 +166,7 @@ public class AI {
 			break;
 		}
 		handleInput();
-		activeOrder = 0;
+		activeOrder = oldActiveOrder;
 	}
 	
 	public void repeatOrder()
@@ -144,6 +176,7 @@ public class AI {
 		if(!handleInputActive)
 		{
 			placeOrder(activeOrder);
+			return;
 		}
 		write("#" + activeOrder);
 		switch(activeOrder)
@@ -205,7 +238,7 @@ public class AI {
 		write("" + GameCore.continents.size());
 		for(int i = 0; i < GameCore.continents.size(); i++)
 		{
-			write("" + GameCore.continents.get(i).units);
+			write(GameCore.continents.get(i).units + " " + GameCore.continents.get(i).regions.size());
 			String s = "" + GameCore.continents.get(i).regions.get(0);
 			for(int j = 1; j < GameCore.continents.get(i).regions.size(); j++)
 				s += " " + GameCore.continents.get(i).regions.get(j);
@@ -229,19 +262,46 @@ public class AI {
 	}
 	
 	/**
+	 * Sendet die aktuelle Aufgabe erneut
+	 */
+	void handle44()
+	{
+		switch(GameCore.activeState)
+		{
+		case REINFORCE:
+			write("#60");
+			write("" + GameCore.unitsLeft);
+			break;
+		case ATTACK:
+			write("#61");
+			break;
+		case BACK:
+			write("#62");
+			break;
+		case MOVE:
+			write("#63");
+			break;
+		}
+	}
+	
+	/**
 	 * Platziert Einheiten
 	 */
 	void handle50()
 	{
 		line = read();
+		preWrite("#10");
 		if(GameCore.placeUnits(Integer.parseInt(line.split(" ")[0]), Integer.parseInt(line.split(" ")[1])))
 		{
 			if(GameCore.unitsLeft <= 0)
 				handleInputActive = false;
-			write("#10");
+			writePreWrite();
 		}
 		else
+		{
+			preWrite(null);
 			write("#" + GameCore.errorCode);
+		}
 	}
 	
 	/**
@@ -256,11 +316,13 @@ public class AI {
 			if(GameCore.attackSuccess)
 			{
 				write("#11");
+				write(GameCore.regions.get(GameCore.attackSource).units + " " + GameCore.regions.get(GameCore.attackDrain).units);
 				placeOrder(62);
 			}
 			else
 			{
 				write("#12");
+				write(GameCore.regions.get(GameCore.attackSource).units + " " + GameCore.regions.get(GameCore.attackDrain).units);
 			}
 		}
 		else
@@ -306,10 +368,12 @@ public class AI {
 	 */
 	void handle54()
 	{
+		handleInputActive = false;
 		if(!GameCore.nextPhase())
+		{
 			write("#" + GameCore.errorCode);
-		else
-			handleInputActive = false;
+			handleInputActive = true;
+		}
 	}
 	
 	/**
@@ -335,6 +399,10 @@ public class AI {
 			if(s.equals("#43"))
 			{
 				send33();
+			}
+			if(s.equals("#44"))
+			{
+				handle44();
 			}
 			if(s.equals("#50"))
 			{

@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1396107863 source:c:\users\benjamin\documents\workspace\efrisiko\ai\demoai\ai.cpp
+	<iostream>
+	<cstdlib>
+	<string>
+	<vector>
+	<fstream>
+

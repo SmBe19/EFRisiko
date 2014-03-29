@@ -107,6 +107,7 @@ public class GameCore {
 			errorCode = 24;
 			return false;
 		}
+		boolean noAI = false;
 		switch(activeState)
 		{
 		case REINFORCE:
@@ -117,12 +118,13 @@ public class GameCore {
 			break;
 		case BACK:
 			activeState = GameState.ATTACK;
+			noAI = true;
 			break;
 		case MOVE:
 			nextPlayer();
 			break;
 		}
-		if(players.get(activePlayer).controlType == PlayerControlType.AI)
+		if(!noAI && players.get(activePlayer).controlType == PlayerControlType.AI)
 		{
 			switch(activeState)
 			{
@@ -131,6 +133,8 @@ public class GameCore {
 				break;
 			case MOVE:
 				players.get(activePlayer).ai.placeOrder(63);
+				break;
+			default:
 				break;
 			}
 		}
@@ -188,6 +192,8 @@ public class GameCore {
 			players.get(activePlayer).ai.processInput("#43");
 			players.get(activePlayer).ai.placeOrder(60);
 		}
+		
+		
 	}
 	
 	/**
