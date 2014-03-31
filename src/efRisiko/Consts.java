@@ -15,7 +15,9 @@ public class Consts {
 	public static boolean ISDEBUG = false;
 	public static boolean SHOWSTARTUP = false;
 	public static int DEBUGSTARTUNITS = 5;
-	public static boolean AUTOPLACEUNITS = true;
+	public static boolean AUTOPLACEUNITS = false;
+	
+	public static int AISLEEP = 100;
 	
 	public static int SCREENWIDTH = 800;
 	public static int SCREENHEIGHT = 800;

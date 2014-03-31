@@ -14,6 +14,7 @@ import efRisiko.Player.PlayerControlType;
 public class EFRisiko {
 
 	public static void main(String[] args) {
+		
 		System.out.println("EFRisiko\n© 2014 Benjamin Schmid");
 
 		StartUp startUp = new StartUp();
@@ -56,12 +57,12 @@ public class EFRisiko {
 			}
 		else
 		{
-			GameCore.players.get(0).controlType = PlayerControlType.AI;
-			GameCore.players.get(0).connectionString = "C:\\Users\\Benjamin\\Documents\\workspace\\EFRisiko\\ai\\DemoAI\\bin\\Debug\\DemoAI.exe";
-			GameCore.players.get(0).ai = new AI(GameCore.players.get(0).connectionString, 0);
-			GameCore.players.get(1).controlType = PlayerControlType.AI;
-			GameCore.players.get(1).connectionString = "C:\\Users\\Benjamin\\Documents\\workspace\\EFRisiko\\ai\\DemoAI\\bin\\Debug\\DemoAI.exe";
-			GameCore.players.get(1).ai = new AI(GameCore.players.get(1).connectionString, 1);
+			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
+			{
+				GameCore.players.get(i).controlType = PlayerControlType.AI;
+				GameCore.players.get(i).connectionString = "C:\\Users\\Benjamin\\Documents\\workspace\\EFRisiko\\ai\\DemoAI\\bin\\Debug\\DemoAI.exe";
+				GameCore.players.get(i).ai = new AI(GameCore.players.get(i).connectionString, i);
+			}
 		}
 		
 		System.out.println("Done!");
@@ -78,6 +79,7 @@ public class EFRisiko {
 				GameCore.placeUnits(GameCore.rnd.nextInt(GameCore.regions.size()), 1);
 			}
 		}
+		GameCore.nextPlayer();
 		
 		System.out.println("Done!");
 	}

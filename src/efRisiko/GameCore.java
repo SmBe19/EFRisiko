@@ -25,6 +25,13 @@ import javax.imageio.ImageIO;
 
 import efRisiko.Player.PlayerControlType;
 
+interface GameCoreListener{
+	public void onNextPlayer(int player);
+	public void onNextPhase();
+	public void onPlayerWon(int player);
+	public void repaintRequest();
+}
+
 public class GameCore {
 	public enum GameState { REINFORCE, ATTACK, BACK, MOVE };
 	
@@ -40,6 +47,8 @@ public class GameCore {
 	public static int activePlayer;
 	public static GameState activeState;
 	
+	public static int playerWinner;
+	
 	public static int unitsLeft;
 	
 	public static int attackResA1, attackResA2, attackResA3, attackResD1, attackResD2;
@@ -49,6 +58,8 @@ public class GameCore {
 	public static int errorCode;
 	
 	public static Random rnd;
+	
+	static ArrayList<GameCoreListener> gameCoreListeners;
 	
 	/**
 	 * Initialisiert den Gamecore
@@ -60,6 +71,7 @@ public class GameCore {
 		continents = new ArrayList<Continent>();
 		players = new ArrayList<Player>();
 		rnd = new Random(System.currentTimeMillis());
+		gameCoreListeners = new ArrayList<GameCoreListener>();
 		
 		if(!loadMap(Consts.CONTENTFOLDER + Consts.MAPSFOLDER + Consts.MAPNAME))
 			return false;
@@ -80,6 +92,8 @@ public class GameCore {
 		isPreparation = true;
 		activePlayer = rnd.nextInt(Consts.PLAYERCOUNT);
 		activeState = GameState.REINFORCE;
+		
+		playerWinner = -1;
 		return true;
 	}
 	
@@ -88,13 +102,14 @@ public class GameCore {
 	 */
 	public static void desinit()
 	{
-		for(int i = 0; i < players.size(); i++)
-		{
-			if(players.get(i).controlType == PlayerControlType.AI)
-			{
-				players.get(i).ai.placeOrder(64);
-			}
-		}
+		for(Player player : players)
+			if(player.controlType == PlayerControlType.AI)
+				player.ai.write("#64");
+	}
+	
+	public static void addGameCoreListener(GameCoreListener listener)
+	{
+		gameCoreListeners.add(listener);
 	}
 	
 	/**
@@ -138,6 +153,8 @@ public class GameCore {
 				break;
 			}
 		}
+		for(GameCoreListener listener : gameCoreListeners)
+			listener.onNextPhase();
 		return true;
 	}
 	
@@ -146,11 +163,22 @@ public class GameCore {
 	 */
 	public static void nextPlayer()
 	{
+		playerWinner = activePlayer;
 		do
 		{
 			activePlayer++;
 			activePlayer %= Consts.PLAYERCOUNT;
 		} while(!isPreparation && countPlayerRegions(activePlayer) == 0);
+		
+		if(activePlayer != playerWinner)
+		{
+			playerWinner = -1;
+		}
+		else
+		{
+			playerWon();
+			return;
+		}
 		
 		activeState = GameState.REINFORCE;
 		
@@ -185,15 +213,37 @@ public class GameCore {
 			}
 		}
 		
+		for(GameCoreListener listener : gameCoreListeners)
+			listener.onNextPlayer(activePlayer);
+		
+		for(GameCoreListener listener : gameCoreListeners)
+			listener.repaintRequest();
+		
 		// AI
 		if(!(isPreparation && Consts.AUTOPLACEUNITS) && players.get(activePlayer).controlType == PlayerControlType.AI)
 		{
+			if(Consts.AISLEEP > 0)
+				try {
+					Thread.sleep(Consts.AISLEEP);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			
 			players.get(activePlayer).ai.write("#14");
 			players.get(activePlayer).ai.processInput("#43");
 			players.get(activePlayer).ai.placeOrder(60);
+			players.get(activePlayer).ai.handleInput();
 		}
+	}
+	
+	public static void playerWon()
+	{
+		for(Player player : players)
+			if(player.controlType == PlayerControlType.AI)
+				player.ai.write("#64");
 		
-		
+		for(GameCoreListener listener : gameCoreListeners)
+			listener.onPlayerWon(playerWinner);
 	}
 	
 	/**

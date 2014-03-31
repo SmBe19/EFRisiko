@@ -10,9 +10,18 @@ package efRisiko;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.util.ArrayList;
+
+interface AIListener{
+	public void repaintRequest();
+	public void highlightRegion(int region);
+}
 
 public class AI {
 	
@@ -28,7 +37,10 @@ public class AI {
 	String preWriteMsg;
 	
 	String line;
-	boolean debug;
+	boolean writeDebug;
+	PrintStream debug;
+	
+	ArrayList<AIListener> aiListeners;
 	
 	/**
 	 * Constructor, stellt die Verbindung zur AI her und übermittelt Gameinfos
@@ -39,6 +51,15 @@ public class AI {
 	{
 		connectionString = ai;
 		playerNumber = num;
+		handleInputActive = false;
+		
+		aiListeners = new ArrayList<AIListener>();
+		
+		try {
+			debug = new PrintStream(new File("logGC" + num + ".txt"));
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
 		
 		try {
 			process = new ProcessBuilder(ai).start();
@@ -59,6 +80,11 @@ public class AI {
 		}
 	}
 	
+	public void addAIListener(AIListener listener)
+	{
+		aiListeners.add(listener);
+	}
+	
 	/**
 	 * übermittelt eine Nachricht zur AI
 	 * @param s die Nachricht
@@ -69,10 +95,10 @@ public class AI {
 		try {
 			if(preWriteMsg != null)
 				writePreWrite();
-			if(debug)
-				System.out.println(playerNumber + "_GC: " + s);
+			if(writeDebug)
+				debug.println(playerNumber + "_GC: " + s);
 			if(s.toString().startsWith("#2"))
-				System.out.println("-----------------------");
+				debug.println("-----------------------");
 			out.write(s.toString() + "\n");
 			if(!noFlush)
 				out.flush();
@@ -135,8 +161,8 @@ public class AI {
 		String res;
 		try {
 			res = in.readLine();
-			if(debug)
-				System.out.println(playerNumber + "_AI: " + res);
+			if(writeDebug)
+				debug.println(playerNumber + "_AI: " + res);
 			return res;
 		} catch (IOException e) {
 			//e.printStackTrace();
@@ -150,36 +176,9 @@ public class AI {
 	 */
 	public void placeOrder(int code)
 	{
-		int oldActiveOrder = activeOrder;
 		activeOrder = code;
 		write("#" + code);
 		switch(code)
-		{
-		case 60:
-			if(GameCore.isPreparation)
-				write("1");
-			else
-				write("" + GameCore.unitsLeft);
-			break;
-		case 62:
-			write(GameCore.attackSource + " " + GameCore.attackDrain);
-			break;
-		}
-		handleInput();
-		activeOrder = oldActiveOrder;
-	}
-	
-	public void repeatOrder()
-	{
-		if(activeOrder == 0)
-			return;
-		if(!handleInputActive)
-		{
-			placeOrder(activeOrder);
-			return;
-		}
-		write("#" + activeOrder);
-		switch(activeOrder)
 		{
 		case 60:
 			if(GameCore.isPreparation)
@@ -198,9 +197,22 @@ public class AI {
 	 */
 	public void handleInput()
 	{
+		if(handleInputActive)
+			return;
 		handleInputActive = true;
 		while(handleInputActive && (line = read()) != null)
+		{
+			if(Consts.AISLEEP > 0)
+				try {
+					Thread.sleep(Consts.AISLEEP);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			processInput(line);
+			for(AIListener listener : aiListeners)
+				listener.repaintRequest();
+		}
+		activeOrder = 0;
 	}
 	
 	/**
@@ -211,7 +223,6 @@ public class AI {
 		write("#30");
 		write(Consts.PLAYERCOUNT);
 		write(playerNumber);
-		repeatOrder();
 	}
 	
 	/**
@@ -226,7 +237,6 @@ public class AI {
 				if(GameCore.regions.get(i).connections.get(j) > i)
 					write(i + " " + GameCore.regions.get(i).connections.get(j), true);
 		flush();
-		repeatOrder();
 	}
 	
 	/**
@@ -244,7 +254,6 @@ public class AI {
 				s += " " + GameCore.continents.get(i).regions.get(j);
 			write(s);
 		}
-		repeatOrder();
 	}
 	
 	/**
@@ -258,7 +267,6 @@ public class AI {
 			write(GameCore.regions.get(i).player + " " + GameCore.regions.get(i).units, true);
 		}
 		flush();
-		repeatOrder();
 	}
 	
 	/**
@@ -270,7 +278,10 @@ public class AI {
 		{
 		case REINFORCE:
 			write("#60");
-			write("" + GameCore.unitsLeft);
+			if(GameCore.isPreparation)
+				write("1");
+			else
+				write("" + GameCore.unitsLeft);
 			break;
 		case ATTACK:
 			write("#61");
@@ -293,8 +304,8 @@ public class AI {
 		preWrite("#10");
 		if(GameCore.placeUnits(Integer.parseInt(line.split(" ")[0]), Integer.parseInt(line.split(" ")[1])))
 		{
-			if(GameCore.unitsLeft <= 0)
-				handleInputActive = false;
+			for(AIListener listener : aiListeners)
+				listener.highlightRegion(Integer.parseInt(line.split(" ")[0]));
 			writePreWrite();
 		}
 		else
@@ -312,12 +323,16 @@ public class AI {
 		line = read();
 		if(GameCore.attack(Integer.parseInt(line.split(" ")[0]), Integer.parseInt(line.split(" ")[1])))
 		{
-			handleInputActive = false;
+			for(AIListener listener : aiListeners)
+				listener.highlightRegion(Integer.parseInt(line.split(" ")[0]));
+			for(AIListener listener : aiListeners)
+				listener.highlightRegion(Integer.parseInt(line.split(" ")[1]));
 			if(GameCore.attackSuccess)
 			{
 				write("#11");
 				write(GameCore.regions.get(GameCore.attackSource).units + " " + GameCore.regions.get(GameCore.attackDrain).units);
 				placeOrder(62);
+				return;
 			}
 			else
 			{
@@ -341,11 +356,13 @@ public class AI {
 		line = read();
 		if(GameCore.backRegion(Integer.parseInt(line)))
 		{
-			handleInputActive = false;
 			write("#10");
 		}
 		else
+		{
 			write("#" + GameCore.errorCode);
+		}
+		placeOrder(61);
 	}
 	
 	/**
@@ -356,11 +373,16 @@ public class AI {
 		line = read();
 		if(GameCore.move(Integer.parseInt(line.split(" ")[0]), Integer.parseInt(line.split(" ")[1]), Integer.parseInt(line.split(" ")[2])))
 		{
-			handleInputActive = false;
+			for(AIListener listener : aiListeners)
+				listener.highlightRegion(Integer.parseInt(line.split(" ")[0]));
+			for(AIListener listener : aiListeners)
+				listener.highlightRegion(Integer.parseInt(line.split(" ")[1]));
 			write("#10");
 		}
 		else
+		{
 			write("#" + GameCore.errorCode);
+		}
 	}
 	
 	/**
@@ -368,11 +390,9 @@ public class AI {
 	 */
 	void handle54()
 	{
-		handleInputActive = false;
 		if(!GameCore.nextPhase())
 		{
 			write("#" + GameCore.errorCode);
-			handleInputActive = true;
 		}
 	}
 	
@@ -426,16 +446,19 @@ public class AI {
 			}
 			if(s.equals("#70"))
 			{
-				debug = true;
+				writeDebug = true;
 			}
 			if(s.equals("#71"))
 			{
-				debug = false;
+				writeDebug = false;
 			}
 			if(s.equals("#72"))
 			{
 				System.out.println(read());
 			}
 		}
+		
+		if(GameCore.activePlayer != playerNumber)
+			handleInputActive = false;
 	}
 }

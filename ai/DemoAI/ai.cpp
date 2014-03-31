@@ -18,14 +18,16 @@ int lastAttackSource, lastAttackDrain;
 
 bool stayInLoop;
 
+int errorCount;
+
 ofstream log;
 
 void readGameInfo()
 {
     cin >> playerCount >> aiPlayer;
     log.close();
-    string logname = "logX.txt";
-    logname[3] = (char)(aiPlayer+'0');
+    string logname = "logAIX.txt";
+    logname[5] = (char)(aiPlayer+'0');
     log.open(&logname[0]);
     log << "I'm N° " << aiPlayer << endl;
 }
@@ -90,6 +92,7 @@ void placeUnit()
                 return;
             }
         }
+        // zufaellig kein freies gefunden
         for(int i = 0; i < regions.size(); i++)
         {
             if(regions[i].first == -1)
@@ -98,11 +101,22 @@ void placeUnit()
                 return;
             }
         }
+        // alle Felder wurden bereits besetzt
+        for(int i = rand() % regions.size(); i < regions.size(); i++)
+        {
+            if(regions[i].first == aiPlayer)
+            {
+                cout << "#50" << endl << i << " " << 1 << endl;
+                return;
+            }
+        }
+        // zufaellig kein geeignetes gefunden
         for(int i = 0; i < regions.size(); i++)
         {
             if(regions[i].first == aiPlayer)
             {
                 cout << "#50" << endl << i << " " << 1 << endl;
+                return;
             }
         }
     }
@@ -110,23 +124,27 @@ void placeUnit()
     {
         while(n > 0)
         {
+            bool noPlace = true;
             for(int i = rand() % regions.size(); i < regions.size() && n > 0; i++)
             {
                 if(regions[i].first == aiPlayer)
                 {
                     cout << "#50" << endl << i << " " << 1 << endl;
                     n--;
-                    continue;
+                    noPlace = false;
+                    break;
                 }
             }
-            for(int i = 0; i < regions.size() && n > 0; i++)
-            {
-                if(regions[i].first == aiPlayer)
+            if(noPlace)
+                for(int i = 0; i < regions.size() && n > 0; i++)
                 {
-                    cout << "#50" << endl << i << " " << 1 << endl;
-                    n--;
+                    if(regions[i].first == aiPlayer)
+                    {
+                        cout << "#50" << endl << i << " " << 1 << endl;
+                        n--;
+                        break;
+                    }
                 }
-            }
         }
     }
 }
@@ -262,7 +280,12 @@ void processInput(string s)
 
     if(s == "#20" || s == "#21" || s == "#22" || s == "#23" || s == "#24")
     {
-        cout << "#44" << endl;
+        if(errorCount > 100)
+        {
+            cout << "#44" << endl;
+            errorCount = 0;
+        }
+        errorCount++;
         log << "error" << endl;
     }
 }
@@ -278,7 +301,7 @@ int main()
 
     isPreparation = true;
 
-    log.open("logX.txt");
+    log.open("logAI.txt");
 
     stayInLoop = true;
     while(stayInLoop && cin >> input)

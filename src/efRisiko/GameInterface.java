@@ -22,11 +22,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import efRisiko.GameCore.GameState;
+import efRisiko.Player.PlayerControlType;
 
 
 public class GameInterface extends JPanel {
@@ -34,6 +36,8 @@ public class GameInterface extends JPanel {
 	JFrame frame;
 	
 	int activeRegion;
+	
+	ArrayList<Integer> highlightedRegions;
 	
 	int countDialogValue;
 	int countDialogAMax;
@@ -177,6 +181,10 @@ public class GameInterface extends JPanel {
 							break;
 						}
 					}
+					else
+					{
+						activeRegion = -1;
+					}
 				}
 				repaint();
 			}
@@ -213,6 +221,48 @@ public class GameInterface extends JPanel {
 				repaint();
 			}
 		});
+		
+		GameCore.addGameCoreListener(new GameCoreListener() {
+			
+			@Override
+			public void repaintRequest() {
+				repaint();
+			}
+			
+			@Override
+			public void onNextPlayer(int player) {
+				Consts.COUNTDIALOGVISIBLE = false;
+				activeRegion = -1;
+				
+				highlightedRegions.clear();
+			}
+
+			@Override
+			public void onPlayerWon(int player) {
+			}
+
+			@Override
+			public void onNextPhase() {
+				highlightedRegions.clear();
+			}
+		});
+		
+		for(Player player : GameCore.players)
+			if(player.controlType == PlayerControlType.AI)
+				player.ai.addAIListener(new AIListener() {
+					
+					@Override
+					public void repaintRequest() {
+						repaint();
+					}
+
+					@Override
+					public void highlightRegion(int region) {
+						highlightedRegions.add(region);
+					}
+				});
+		
+		highlightedRegions = new ArrayList<Integer>();
 	}
 	
 	/**
@@ -345,14 +395,14 @@ public class GameInterface extends JPanel {
 		for(int i = 0; i < GameCore.regions.size(); i++)
 		{
 			g.setColor(Consts.VERTEXBACKGROUND);
-			if(activeRegion == i)
+			if(activeRegion == i || highlightedRegions.contains(i))
 				g.setColor(Consts.ACTIVEVERTEXBACKGROUND);
 			g.fillOval((int)(GameCore.regions.get(i).location.x * scaleX - Consts.VERTEXSIZE / 2), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT - Consts.VERTEXSIZE / 2), Consts.VERTEXSIZE, Consts.VERTEXSIZE);
 			if(GameCore.regions.get(i).player >= 0)
 				g.setColor(Consts.PLAYERCOLORS[GameCore.regions.get(i).player % Consts.MAXPLAYERCOUNT]);
 			else
 				g.setColor(Consts.NEUTRALPLAYERCOLOR);
-			if(activeRegion == i)
+			if(activeRegion == i || highlightedRegions.contains(i))
 				g.setColor(Consts.ACTIVEVERTEXCOLOR);
 			g.drawOval((int)(GameCore.regions.get(i).location.x * scaleX - Consts.VERTEXSIZE / 2), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT - Consts.VERTEXSIZE / 2), Consts.VERTEXSIZE, Consts.VERTEXSIZE);
 
@@ -363,19 +413,26 @@ public class GameInterface extends JPanel {
 		String splitter = Consts.INFOFIELDTITLEBAR ? "; " : "\n";
 		StringBuilder text = new StringBuilder();
 		text.append("Player: " + (GameCore.activePlayer+1));
-		text.append(splitter + "Phase: ");
-		if(GameCore.isPreparation)
-			text.append("PREP");
+		if(GameCore.playerWinner < 0)
+		{
+			text.append(splitter + "Phase: ");
+			if(GameCore.isPreparation)
+				text.append("PREP");
+			else
+				text.append(GameCore.activeState);
+			
+			if(GameCore.isPreparation || GameCore.activeState == GameState.REINFORCE)
+				text.append(splitter + "Units left: " + (int)Math.ceil(GameCore.unitsLeft * (GameCore.isPreparation ? 1f/Consts.PLAYERCOUNT : 1)));
+			else if((GameCore.activeState == GameState.ATTACK || GameCore.activeState == GameState.BACK) && GameCore.attackResA1 > 0)
+				text.append(splitter + "Result: " + GameCore.attackResA1 + (GameCore.attackResA1 > GameCore.attackResD1 ? ">" : "<=") + GameCore.attackResD1 +
+						(GameCore.attackResA2 > 0 && GameCore.attackResD2 > 0 ? (" & " + GameCore.attackResA2 + (GameCore.attackResA2 > GameCore.attackResD2 ? ">" : "<=") + GameCore.attackResD2) : "") +
+						"; A: " + (GameCore.attackResA1 > 0 ? GameCore.attackResA1 : "") + (GameCore.attackResA2 > 0 ? ", " + GameCore.attackResA2 : "")  + (GameCore.attackResA3 > 0 ? ", " + GameCore.attackResA3 : "") +
+						"; D: " + (GameCore.attackResD1 > 0 ? GameCore.attackResD1 : "")  + (GameCore.attackResD2 > 0 ? ", " + GameCore.attackResD2 : ""));
+		}
 		else
-			text.append(GameCore.activeState);
-		
-		if(GameCore.isPreparation || GameCore.activeState == GameState.REINFORCE)
-			text.append(splitter + "Units left: " + (int)Math.ceil(GameCore.unitsLeft * (GameCore.isPreparation ? 1f/Consts.PLAYERCOUNT : 1)));
-		else if((GameCore.activeState == GameState.ATTACK || GameCore.activeState == GameState.BACK) && GameCore.attackResA1 > 0)
-			text.append(splitter + "Result: " + GameCore.attackResA1 + (GameCore.attackResA1 > GameCore.attackResD1 ? ">" : "<=") + GameCore.attackResD1 +
-					(GameCore.attackResA2 > 0 && GameCore.attackResD2 > 0 ? (" & " + GameCore.attackResA2 + (GameCore.attackResA2 > GameCore.attackResD2 ? ">" : "<=") + GameCore.attackResD2) : "") +
-					"; A: " + (GameCore.attackResA1 > 0 ? GameCore.attackResA1 : "") + (GameCore.attackResA2 > 0 ? ", " + GameCore.attackResA2 : "")  + (GameCore.attackResA3 > 0 ? ", " + GameCore.attackResA3 : "") +
-					"; D: " + (GameCore.attackResD1 > 0 ? GameCore.attackResD1 : "")  + (GameCore.attackResD2 > 0 ? ", " + GameCore.attackResD2 : ""));
+		{
+			text.append(" won");
+		}
 		
 		if(Consts.INFOFIELDTITLEBAR)
 		{
