@@ -42,7 +42,7 @@ public class EFRisiko {
 		}
 		
 		// Debug
-		if(Consts.ISDEBUG)
+		if(Consts.USEDEBUGSTARTUNITS)
 			GameCore.unitsLeft = Consts.PLAYERCOUNT * Consts.DEBUGSTARTUNITS;
 
 		if(Consts.SHOWSTARTUP)
@@ -50,6 +50,7 @@ public class EFRisiko {
 			{
 				GameCore.players.get(i).controlType = startUp.playertypes[i];
 				GameCore.players.get(i).connectionString = startUp.playertypesConnection[i];
+				GameCore.players.get(i).name = startUp.playerNames[i];
 				if(startUp.playertypes[i] == PlayerControlType.AI)
 				{
 					GameCore.players.get(i).ai = new AI(startUp.playertypesConnection[i], i);
@@ -59,8 +60,9 @@ public class EFRisiko {
 		{
 			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
 			{
+				GameCore.players.get(i).name = "AI." + i;
 				GameCore.players.get(i).controlType = PlayerControlType.AI;
-				GameCore.players.get(i).connectionString = "C:\\Users\\Benjamin\\Documents\\workspace\\EFRisiko\\ai\\DemoAI\\bin\\Debug\\DemoAI.exe";
+				GameCore.players.get(i).connectionString = Consts.AIDEFAULTCONNECTIONSTRING;
 				GameCore.players.get(i).ai = new AI(GameCore.players.get(i).connectionString, i);
 			}
 		}

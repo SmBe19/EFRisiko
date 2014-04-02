@@ -36,6 +36,7 @@ public class StartUp extends JPanel {
 	
 	public PlayerControlType[] playertypes;
 	public String[] playertypesConnection;
+	public String[] playerNames;
 	
 	boolean inited = false;
 	JFrame frame;
@@ -44,17 +45,23 @@ public class StartUp extends JPanel {
 	JComboBox cbMapName;
 	JComboBox cbAPlayer;
 	JComboBox cbPlayerType;
+	JTextField tfPlayerName;
 	JTextField tfPlayerTypeConnection;
 	JButton bStart;
 	
+	/**
+	 * Initialisirt das Fenster und platziert alle Steuerelemente
+	 */
 	public void init()
 	{
 		playertypes = new PlayerControlType[Consts.MAXPLAYERCOUNT];
 		playertypesConnection = new String[Consts.MAXPLAYERCOUNT];
+		playerNames = new String[Consts.MAXPLAYERCOUNT];
 		for(int i = 0; i < Consts.MAXPLAYERCOUNT; i++)
 		{
 			playertypes[i] = PlayerControlType.LOCAL;
 			playertypesConnection[i] = "";
+			playerNames[i] = "" + (i+1);
 		}
 		
 		inited = true;
@@ -130,9 +137,39 @@ public class StartUp extends JPanel {
 					return;
 				cbPlayerType.setSelectedItem(playertypes[cbAPlayer.getSelectedIndex()]);
 				tfPlayerTypeConnection.setText(playertypesConnection[cbAPlayer.getSelectedIndex()]);
+				tfPlayerName.setText(playerNames[cbAPlayer.getSelectedIndex()]);
 			}
 		});
 		this.add(cbAPlayer);
+		this.add(Box.createRigidArea(new Dimension(0, 10)));
+		
+		this.add(new JLabel("Playername"));
+		this.add(Box.createRigidArea(new Dimension(0, 4)));
+		tfPlayerName = new JTextField();
+		tfPlayerName.setAlignmentX(JTextField.LEFT_ALIGNMENT);
+		tfPlayerName.setText("1");
+		tfPlayerName.getDocument().addDocumentListener(new DocumentListener() {
+			
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				update();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				update();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+			}
+			
+			void update()
+			{
+				playerNames[cbAPlayer.getSelectedIndex()] = tfPlayerName.getText();
+			}
+		});
+		this.add(tfPlayerName);
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		this.add(new JLabel("Playertype"));
@@ -210,6 +247,9 @@ public class StartUp extends JPanel {
 		frame.pack();
 	}
 	
+	/**
+	 * Zeigt das Fenster an
+	 */
 	public void show()
 	{
 		if(!inited)
@@ -219,6 +259,9 @@ public class StartUp extends JPanel {
 		frame.setVisible(true);
 	}
 	
+	/**
+	 * schliesst das Fenster
+	 */
 	public void close()
 	{
 		frame.dispose();

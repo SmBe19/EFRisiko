@@ -107,6 +107,10 @@ public class GameCore {
 				player.ai.write("#64");
 	}
 	
+	/**
+	 * Fügt einen GameCoreListener hinzu
+	 * @param listener der Listener
+	 */
 	public static void addGameCoreListener(GameCoreListener listener)
 	{
 		gameCoreListeners.add(listener);
@@ -236,6 +240,9 @@ public class GameCore {
 		}
 	}
 	
+	/**
+	 * Ein Spieler hat gewonnen
+	 */
 	public static void playerWon()
 	{
 		for(Player player : players)

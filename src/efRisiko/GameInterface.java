@@ -310,6 +310,9 @@ public class GameInterface extends JPanel {
 		activeRegion = -1;
 	}
 	
+	/**
+	 * Liest den Text für das Hilfsfenster ein
+	 */
 	void readHelpFile()
 	{
 		File f = new File(Consts.CONTENTFOLDER + Consts.HELPFIELDTEXTFILE);
@@ -395,14 +398,16 @@ public class GameInterface extends JPanel {
 		for(int i = 0; i < GameCore.regions.size(); i++)
 		{
 			g.setColor(Consts.VERTEXBACKGROUND);
-			if(activeRegion == i || highlightedRegions.contains(i))
+			if(highlightedRegions.contains(i))
+				g.setColor(Consts.HIGHLIGHTVERTEXBACKGROUND);
+			if(activeRegion == i)
 				g.setColor(Consts.ACTIVEVERTEXBACKGROUND);
 			g.fillOval((int)(GameCore.regions.get(i).location.x * scaleX - Consts.VERTEXSIZE / 2), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT - Consts.VERTEXSIZE / 2), Consts.VERTEXSIZE, Consts.VERTEXSIZE);
 			if(GameCore.regions.get(i).player >= 0)
 				g.setColor(Consts.PLAYERCOLORS[GameCore.regions.get(i).player % Consts.MAXPLAYERCOUNT]);
 			else
 				g.setColor(Consts.NEUTRALPLAYERCOLOR);
-			if(activeRegion == i || highlightedRegions.contains(i))
+			if(activeRegion == i)
 				g.setColor(Consts.ACTIVEVERTEXCOLOR);
 			g.drawOval((int)(GameCore.regions.get(i).location.x * scaleX - Consts.VERTEXSIZE / 2), (int)(GameCore.regions.get(i).location.y * scaleY + Consts.TITLEBARHEIGHT - Consts.VERTEXSIZE / 2), Consts.VERTEXSIZE, Consts.VERTEXSIZE);
 
@@ -412,7 +417,10 @@ public class GameInterface extends JPanel {
 		// InfoField
 		String splitter = Consts.INFOFIELDTITLEBAR ? "; " : "\n";
 		StringBuilder text = new StringBuilder();
-		text.append("Player: " + (GameCore.activePlayer+1));
+		if(GameCore.players.get(GameCore.activePlayer).name != null)
+			text.append("Player: " + GameCore.players.get(GameCore.activePlayer).name);
+		else
+			text.append("Player: " + (GameCore.activePlayer+1));
 		if(GameCore.playerWinner < 0)
 		{
 			text.append(splitter + "Phase: ");

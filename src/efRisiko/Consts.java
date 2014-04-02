@@ -11,14 +11,12 @@ package efRisiko;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
+/**
+ * Enthält alle Konstanten für das Spiel
+ * @author smbe19
+ *
+ */
 public class Consts {
-	public static boolean ISDEBUG = false;
-	public static boolean SHOWSTARTUP = false;
-	public static int DEBUGSTARTUNITS = 5;
-	public static boolean AUTOPLACEUNITS = false;
-	
-	public static int AISLEEP = 100;
-	
 	public static int SCREENWIDTH = 800;
 	public static int SCREENHEIGHT = 800;
 	
@@ -27,6 +25,17 @@ public class Consts {
 	
 	public static String CONTENTFOLDER = "content/";
 	public static String MAPSFOLDER = "maps/";
+	
+	// Debug
+	public static boolean ISDEBUG = false;
+	public static boolean SHOWSTARTUP = false;
+	public static boolean USEDEBUGSTARTUNITS = false;
+	public static int DEBUGSTARTUNITS = 5;
+	public static boolean AUTOPLACEUNITS = false;
+	
+	// AI
+	public static String AIDEFAULTCONNECTIONSTRING = "ai\\DemoAI\\bin\\Debug\\DemoAI.exe";
+	public static int AISLEEP = -100;
 	
 	// Interface-Settings
 	
@@ -52,6 +61,7 @@ public class Consts {
 	public static Color VERTEXBACKGROUND = new Color(1f, 1f, 1f, 0.9f);
 	public static Color ACTIVEVERTEXCOLOR = Color.yellow;
 	public static Color ACTIVEVERTEXBACKGROUND = new Color(0f, 0f, 0f, 0.7f);
+	public static Color HIGHLIGHTVERTEXBACKGROUND = Color.orange;
 	
 	// Info-Field
 	public static boolean INFOFIELDTITLEBAR = true;

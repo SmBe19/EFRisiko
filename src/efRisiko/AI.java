@@ -80,6 +80,10 @@ public class AI {
 		}
 	}
 	
+	/**
+	 * Fügt einen AIListener hinzu
+	 * @param listener der Listener
+	 */
 	public void addAIListener(AIListener listener)
 	{
 		aiListeners.add(listener);

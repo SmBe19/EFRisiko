@@ -1,0 +1,6 @@
+TODO:
+ - Karten hinzufügen
+ - AI Debugen
+ - Startup Einstellungen speichern
+ - Spielstände speichern und laden
+ - Schweiz.txt Kontinente überarbeiten
