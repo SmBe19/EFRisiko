@@ -58,7 +58,7 @@ public class EFRisiko {
 			}
 		else
 		{
-			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
+			for(int i = Consts.ALLAI ? 0 : 1; i < Consts.PLAYERCOUNT; i++)
 			{
 				GameCore.players.get(i).name = "AI." + i;
 				GameCore.players.get(i).controlType = PlayerControlType.AI;

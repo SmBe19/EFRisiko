@@ -21,7 +21,7 @@ public class Consts {
 	public static int SCREENHEIGHT = 800;
 	
 	public static int PLAYERCOUNT = 2;
-	public static String MAPNAME = "Risiko.txt";
+	public static String MAPNAME = "Schweiz.txt";
 	
 	public static String CONTENTFOLDER = "content/";
 	public static String MAPSFOLDER = "maps/";
@@ -29,6 +29,7 @@ public class Consts {
 	// Debug
 	public static boolean ISDEBUG = false;
 	public static boolean SHOWSTARTUP = false;
+	public static boolean ALLAI = false;
 	public static boolean USEDEBUGSTARTUNITS = false;
 	public static int DEBUGSTARTUNITS = 5;
 	public static boolean AUTOPLACEUNITS = false;

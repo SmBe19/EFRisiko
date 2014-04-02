@@ -116,6 +116,7 @@ public class StartUp extends JPanel {
 			}
 		}));
 		cbMapName.setAlignmentX(JComboBox.LEFT_ALIGNMENT);
+		cbMapName.setSelectedItem(Consts.MAPNAME);
 		this.add(cbMapName);
 		this.add(Box.createRigidArea(new Dimension(0, 30)));
 		
