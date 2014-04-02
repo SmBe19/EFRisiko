@@ -12,11 +12,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
@@ -566,8 +564,7 @@ public class GameCore {
 		
 		try
 		{
-			DataInputStream instr = new DataInputStream(new FileInputStream(file));
-			BufferedReader reader = new BufferedReader(new InputStreamReader(instr));
+			BufferedReader reader = new BufferedReader(new FileReader(file));
 
 			regions = new ArrayList<Region>();
 			continents = new ArrayList<Continent>();
@@ -666,7 +663,6 @@ public class GameCore {
 			}
 			
 			reader.close();
-			instr.close();
 		}
 		catch(IOException e)
 		{

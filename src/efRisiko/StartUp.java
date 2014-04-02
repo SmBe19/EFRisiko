@@ -8,13 +8,16 @@
 
 package efRisiko;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.PrintStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -63,6 +66,7 @@ public class StartUp extends JPanel {
 			playertypesConnection[i] = "";
 			playerNames[i] = "" + (i+1);
 		}
+		readSettings();
 		
 		inited = true;
 		
@@ -148,7 +152,7 @@ public class StartUp extends JPanel {
 		this.add(Box.createRigidArea(new Dimension(0, 4)));
 		tfPlayerName = new JTextField();
 		tfPlayerName.setAlignmentX(JTextField.LEFT_ALIGNMENT);
-		tfPlayerName.setText("1");
+		tfPlayerName.setText(playerNames[0]);
 		tfPlayerName.getDocument().addDocumentListener(new DocumentListener() {
 			
 			@Override
@@ -199,7 +203,7 @@ public class StartUp extends JPanel {
 		this.add(Box.createRigidArea(new Dimension(0, 4)));
 		tfPlayerTypeConnection = new JTextField();
 		tfPlayerTypeConnection.setAlignmentX(JTextField.LEFT_ALIGNMENT);
-		tfPlayerTypeConnection.setText("");
+		tfPlayerTypeConnection.setText(playertypesConnection[0]);
 		tfPlayerTypeConnection.setEditable(false);
 		tfPlayerTypeConnection.getDocument().addDocumentListener(new DocumentListener() {
 			
@@ -237,6 +241,7 @@ public class StartUp extends JPanel {
 					Consts.MAPNAME = cbMapName.getSelectedItem().toString();
 					frame.setVisible(false);
 					finished = true;
+					saveSettings();
 				}
 				catch(NumberFormatException e)
 				{
@@ -244,6 +249,8 @@ public class StartUp extends JPanel {
 			}
 		});
 		this.add(bStart);
+		
+		cbPlayerType.setSelectedItem(playertypes[0]);
 
 		frame.pack();
 	}
@@ -268,4 +275,41 @@ public class StartUp extends JPanel {
 		frame.dispose();
 	}
 
+	void readSettings()
+	{
+		if(!new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE).exists())
+			return;
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE));
+			Consts.MAPNAME = reader.readLine();
+			Consts.PLAYERCOUNT = Integer.parseInt(reader.readLine());
+			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
+			{
+				playerNames[i] = reader.readLine();
+				playertypes[i] = PlayerControlType.valueOf(reader.readLine());
+				playertypesConnection[i] = reader.readLine();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	void saveSettings()
+	{
+		try {
+			if(!new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE).exists())
+				new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE).createNewFile();
+			PrintStream writer = new PrintStream(new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE));
+			writer.println(Consts.MAPNAME);
+			writer.println(""+Consts.PLAYERCOUNT);
+			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
+			{
+				writer.println(playerNames[i]);
+				writer.println(playertypes[i].toString());
+				writer.println(playertypesConnection[i]);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -25,10 +25,13 @@ public class Consts {
 	
 	public static String CONTENTFOLDER = "content/";
 	public static String MAPSFOLDER = "maps/";
+	public static String SAVEFOLDER = "save/";
+	
+	public static String STARTUPSAVEFILE = "startup.txt";
 	
 	// Debug
 	public static boolean ISDEBUG = false;
-	public static boolean SHOWSTARTUP = false;
+	public static boolean SHOWSTARTUP = true;
 	public static boolean ALLAI = false;
 	public static boolean USEDEBUGSTARTUNITS = false;
 	public static int DEBUGSTARTUNITS = 5;

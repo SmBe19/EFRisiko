@@ -1,0 +1,8 @@
+Schweiz.txt
+2
+Ben
+LOCAL
+
+AI
+AI
+"P:\workspace\EFRisiko\ai\DemoAI\bin\Debug\DemoAI.exe"
