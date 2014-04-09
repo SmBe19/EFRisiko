@@ -41,5 +41,7 @@ Tastatur
 ---
 F1 - Hilfe
 F5 - Naechste Phase
+F7 - Quickload
+F8 - Quicksave
 F9 - Kontinenteninfo ausblenden
 F11 - Infofeld verschieben

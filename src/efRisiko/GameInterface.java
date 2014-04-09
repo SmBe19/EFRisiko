@@ -42,6 +42,8 @@ public class GameInterface extends JPanel {
 	int countDialogValue;
 	int countDialogAMax;
 	
+	String feedbackFieldValue;
+	
 	/**
 	 * Initialisiert das GameInterface
 	 */
@@ -63,6 +65,8 @@ public class GameInterface extends JPanel {
 			
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				Consts.FEEDBACKFIELDVISIBLE = false;
+				
 				if(Consts.COUNTDIALOGVISIBLE && arg0.getX() > Consts.COUNTDIALOGX && arg0.getX() < Consts.COUNTDIALOGX + Consts.COUNTDIALOGWIDTH
 						&& arg0.getY() > Consts.COUNTDIALOGY + Consts.TITLEBARHEIGHT && arg0.getY() < Consts.COUNTDIALOGY + Consts.COUNTDIALOGHEIGHT + Consts.TITLEBARHEIGHT)
 				{
@@ -214,8 +218,21 @@ public class GameInterface extends JPanel {
 				case Consts.INFOFIELDCHANGEKEY:
 					Consts.INFOFIELDTITLEBAR = !Consts.INFOFIELDTITLEBAR;
 					break;
+				case Consts.QUICKLOADKEY:
+					if(GameCore.loadGame("quicksave.txt"))
+						setFeedbackField("Game loaded", Color.green);
+					else
+						setFeedbackField("Loading failed", Color.red);
+					break;
+				case Consts.QUICKSAVEKEY:
+					if(GameCore.saveGame("quicksave.txt"))
+						setFeedbackField("Game saved", Color.green);
+					else
+						setFeedbackField("Saving failed", Color.red);
+					break;
 				case Consts.EXITGAMEKEY:
 					frame.dispose();
+					break;
 				}
 				
 				repaint();
@@ -350,6 +367,28 @@ public class GameInterface extends JPanel {
 	}
 	
 	/**
+	 * Setzt das Feedback-Feld
+	 * @param text zu setzender Text
+	 */
+	void setFeedbackField(String text)
+	{
+		feedbackFieldValue = text;
+		Consts.FEEDBACKFIELDVISIBLE = true;
+		Consts.FEEDBACKFIELDFOREGROUND = Color.white;
+	}
+	
+	/**
+	 * Setzt das Feedback-Feld
+	 * @param text zu setzender Text
+	 * @param color zu setzende Farbe
+	 */
+	void setFeedbackField(String text, Color color)
+	{
+		setFeedbackField(text);
+		Consts.FEEDBACKFIELDFOREGROUND = color;
+	}
+	
+	/**
 	 * Zeichnet das Fenster neu
 	 */
 	@Override
@@ -445,6 +484,7 @@ public class GameInterface extends JPanel {
 		if(Consts.INFOFIELDTITLEBAR)
 		{
 			g.setFont(g.getFont().deriveFont(Consts.INFOFIELDTBFONTSIZE));
+			Consts.INFOFIELDTBWIDTH = g.getFontMetrics().stringWidth(text.toString()) + Consts.INFOFIELDMARGIN * 2;
 			g.setColor(Consts.INFOFIELDTBBACKGROUND);
 			g.fillRect(Consts.INFOFIELDTBX, 0, Consts.INFOFIELDTBWIDTH, Consts.TITLEBARHEIGHT);
 			
@@ -506,6 +546,19 @@ public class GameInterface extends JPanel {
 			g.setColor(Consts.COUNTDIALOGFOREGROUND);
 			g.drawString(String.format("%3d", countDialogValue), Consts.COUNTDIALOGX + Consts.COUNTDIALOGMARGIN, Consts.COUNTDIALOGY + Consts.TITLEBARHEIGHT + (int)(Consts.COUNTDIALOGFONTSIZE * 1.3));
 		}
+		
+		// FeedbackField
+		if(Consts.FEEDBACKFIELDVISIBLE)
+		{
+			Consts.FEEDBACKFIELDX = Consts.SCREENWIDTH / 2 - Consts.FEEDBACKFIELDWIDTH / 2;
+			g.setFont(g.getFont().deriveFont(Consts.FEEDBACKFIELDFONTSIZE));
+			g.setColor(Consts.FEEDBACKFIELDBACKGROUND);
+			g.fillRect(Consts.FEEDBACKFIELDX, Consts.FEEDBACKFIELDY + Consts.TITLEBARHEIGHT, Consts.FEEDBACKFIELDWIDTH, Consts.FEEDBACKFIELDHEIGHT);
+			
+			g.setColor(Consts.FEEDBACKFIELDFOREGROUND);
+			g.drawString(feedbackFieldValue, Consts.FEEDBACKFIELDX + Consts.FEEDBACKFIELDMARGIN, Consts.FEEDBACKFIELDY + Consts.TITLEBARHEIGHT + (int)(Consts.FEEDBACKFIELDFONTSIZE * 1.3));
+		}
+		
 		g.finalize();
 	}
 }
