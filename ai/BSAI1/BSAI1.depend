@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1397050163 source:p:\workspace\efrisiko\ai\bsai1\ai.cpp
+	<iostream>
+	<cstdlib>
+	<string>
+	<vector>
+	<fstream>
+

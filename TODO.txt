@@ -3,3 +3,4 @@ TODO:
  - AI Debugen
  - Spielstände mit AI speichern und laden
  - Schweiz.txt Kontinente überarbeiten
+ - neue AI
