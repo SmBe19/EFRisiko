@@ -277,10 +277,11 @@ public class StartUp extends JPanel {
 
 	void readSettings()
 	{
+		BufferedReader reader = null;
 		if(!new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE).exists())
 			return;
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE));
+			reader = new BufferedReader(new FileReader(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE));
 			Consts.MAPNAME = reader.readLine();
 			Consts.PLAYERCOUNT = Integer.parseInt(reader.readLine());
 			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
@@ -289,6 +290,7 @@ public class StartUp extends JPanel {
 				playertypes[i] = PlayerControlType.valueOf(reader.readLine());
 				playertypesConnection[i] = reader.readLine();
 			}
+			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -296,10 +298,11 @@ public class StartUp extends JPanel {
 	
 	void saveSettings()
 	{
+		PrintStream writer = null;
 		try {
 			if(!new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE).exists())
 				new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE).createNewFile();
-			PrintStream writer = new PrintStream(new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE));
+			writer = new PrintStream(new File(Consts.SAVEFOLDER + Consts.STARTUPSAVEFILE));
 			writer.println(Consts.MAPNAME);
 			writer.println(""+Consts.PLAYERCOUNT);
 			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
@@ -308,8 +311,11 @@ public class StartUp extends JPanel {
 				writer.println(playertypes[i].toString());
 				writer.println(playertypesConnection[i]);
 			}
+			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+			if(writer != null)
+				writer.close();
 		}
 	}
 }

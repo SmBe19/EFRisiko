@@ -44,6 +44,8 @@ public class Consts {
 	// Interface-Settings
 	
 	public static final int EXITGAMEKEY = KeyEvent.VK_ESCAPE;
+	public static final int QUICKLOADKEY = KeyEvent.VK_F7;
+	public static final int QUICKSAVEKEY = KeyEvent.VK_F8;
 	
 	// Titlebar
 	public static String GAMENAME = "Risiko";
@@ -115,4 +117,15 @@ public class Consts {
 	public static float COUNTDIALOGFONTSIZE = 30f;
 	public static int COUNTDIALOGMARGIN = COUNTDIALOGWIDTH / 3;
 	public static boolean COUNTDIALOGVISIBLE = false;
+	
+	// Feedback-Field
+	public static int FEEDBACKFIELDX = 0;
+	public static int FEEDBACKFIELDY = 20;
+	public static int FEEDBACKFIELDWIDTH = 200;
+	public static int FEEDBACKFIELDHEIGHT = 50;
+	public static Color FEEDBACKFIELDBACKGROUND = new Color(0f, 0f, 0f, 0.7f);
+	public static Color FEEDBACKFIELDFOREGROUND = Color.white;
+	public static float FEEDBACKFIELDFONTSIZE = 30f;
+	public static int FEEDBACKFIELDMARGIN = 10;
+	public static boolean FEEDBACKFIELDVISIBLE = false;
 }

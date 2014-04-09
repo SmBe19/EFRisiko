@@ -1,5 +1,5 @@
 TODO:
  - Karten hinzufügen
  - AI Debugen
- - Spielstände speichern und laden
+ - Spielstände mit AI speichern und laden
  - Schweiz.txt Kontinente überarbeiten

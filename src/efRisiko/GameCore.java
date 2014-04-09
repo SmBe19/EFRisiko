@@ -13,8 +13,10 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
@@ -69,7 +71,6 @@ public class GameCore {
 		continents = new ArrayList<Continent>();
 		players = new ArrayList<Player>();
 		rnd = new Random(System.currentTimeMillis());
-		gameCoreListeners = new ArrayList<GameCoreListener>();
 		
 		if(!loadMap(Consts.CONTENTFOLDER + Consts.MAPSFOLDER + Consts.MAPNAME))
 			return false;
@@ -111,6 +112,8 @@ public class GameCore {
 	 */
 	public static void addGameCoreListener(GameCoreListener listener)
 	{
+		if(gameCoreListeners == null)
+			gameCoreListeners = new ArrayList<GameCoreListener>();
 		gameCoreListeners.add(listener);
 	}
 	
@@ -542,6 +545,72 @@ public class GameCore {
 		regions.get(drain).units += count;
 		
 		nextPhase();
+		
+		return true;
+	}
+	
+	/**
+	 * Speichert den aktuellen Spielstand (kann nur während Angriffsphase aufgerufen werden)
+	 * @param name Name der Datei
+	 * @return ob das Speichern erfolgreich war
+	 */
+	public static boolean saveGame(String name)
+	{
+		if(activeState != GameState.ATTACK)
+			return false;
+		PrintStream writer = null;
+		try {
+			if(!new File(Consts.SAVEFOLDER + name).exists())
+				new File(Consts.SAVEFOLDER + name).createNewFile();
+			writer = new PrintStream(new File(Consts.SAVEFOLDER + name));
+			writer.println(Consts.MAPNAME);
+			writer.println(Consts.PLAYERCOUNT);
+			writer.println(activePlayer);
+			for(int i = 0; i < regions.size(); i++)
+			{
+				writer.println(regions.get(i).player);
+				writer.println(regions.get(i).units);
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			if(writer != null)
+				writer.close();
+			return false;
+		}
+		return true;
+	}
+	
+	public static boolean loadGame(String name)
+	{
+		BufferedReader reader = null;
+		if(!new File(Consts.SAVEFOLDER + name).exists())
+			return false;
+		try {
+			reader = new BufferedReader(new FileReader(Consts.SAVEFOLDER + name));
+			desinit();
+			Consts.MAPNAME = reader.readLine();
+			Consts.PLAYERCOUNT = Integer.parseInt(reader.readLine());
+			activePlayer = Integer.parseInt(reader.readLine());
+			init();
+			isPreparation = false;
+			activeState = GameState.ATTACK;
+			int a, b;
+			for(int i = 0; i < regions.size(); i++)
+			{
+				a = Integer.parseInt(reader.readLine());
+				b = Integer.parseInt(reader.readLine());
+				regions.get(i).player = a;
+				regions.get(i).units = b;
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		for(GameCoreListener listener : gameCoreListeners)
+			listener.repaintRequest();
 		
 		return true;
 	}

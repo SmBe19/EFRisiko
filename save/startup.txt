@@ -1,4 +1,4 @@
-Schweiz.txt
+Risiko.txt
 2
 Ben
 LOCAL
