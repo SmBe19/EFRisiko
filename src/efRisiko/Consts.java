@@ -40,6 +40,8 @@ public class Consts {
 	// AI
 	public static String AIDEFAULTCONNECTIONSTRING = "ai\\DemoAI\\bin\\Debug\\DemoAI.exe";
 	public static int AISLEEP = -100;
+	public static boolean AINOREPAINT = true;
+	public static int AISTATISTICROUNDS = 10;
 	
 	// Interface-Settings
 	

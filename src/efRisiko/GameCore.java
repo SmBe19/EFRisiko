@@ -59,6 +59,8 @@ public class GameCore {
 	
 	public static Random rnd;
 	
+	public static int statRoundsPlayed;
+	
 	static ArrayList<GameCoreListener> gameCoreListeners;
 	
 	/**
@@ -104,6 +106,55 @@ public class GameCore {
 		for(Player player : players)
 			if(player.controlType == PlayerControlType.AI)
 				player.ai.write("#64");
+	}
+	
+	/**
+	 * Restarts the game with the same settings
+	 */
+	public static void restart()
+	{
+		desinit();
+		ArrayList<Player> oldPlayers = players;
+		init();
+		for(int i = 0; i < players.size(); i++)
+		{
+			players.get(i).name = oldPlayers.get(i).name;
+			players.get(i).roundsWon = oldPlayers.get(i).roundsWon;
+			players.get(i).controlType = oldPlayers.get(i).controlType;
+			players.get(i).connectionString = oldPlayers.get(i).connectionString;
+			if(players.get(i).controlType == PlayerControlType.AI)
+				players.get(i).ai = new AI(players.get(i).connectionString, i);
+		}
+		nextPlayer();
+	}
+	
+	/**
+	 * Verwaltet die Statistik
+	 */
+	public static void statHandle()
+	{
+		statRoundsPlayed++;
+		System.out.println("Round " + statRoundsPlayed + " finished");
+		if(statRoundsPlayed >= Consts.AISTATISTICROUNDS)
+		{
+			System.out.println("Statistic results:");
+			for(int i = 0; i < Consts.PLAYERCOUNT; i++)
+			{
+				System.out.println("Player " + i + " (" + players.get(i).name + "): " + players.get(i).roundsWon + " = " + (float)players.get(i).roundsWon/statRoundsPlayed*100 + "%");
+			}
+		}
+		else
+		{
+			restart();
+		}
+	}
+	
+	/**
+	 * Initialisiert die Statistik
+	 */
+	public static void statInit()
+	{
+		statRoundsPlayed = 0;
 	}
 	
 	/**
@@ -220,9 +271,10 @@ public class GameCore {
 		
 		for(GameCoreListener listener : gameCoreListeners)
 			listener.onNextPlayer(activePlayer);
-		
-		for(GameCoreListener listener : gameCoreListeners)
-			listener.repaintRequest();
+
+		if(!Consts.AINOREPAINT)
+			for(GameCoreListener listener : gameCoreListeners)
+				listener.repaintRequest();
 		
 		// AI
 		if(!(isPreparation && Consts.AUTOPLACEUNITS) && players.get(activePlayer).controlType == PlayerControlType.AI)
@@ -246,12 +298,14 @@ public class GameCore {
 	 */
 	public static void playerWon()
 	{
-		for(Player player : players)
-			if(player.controlType == PlayerControlType.AI)
-				player.ai.write("#64");
+		players.get(playerWinner).roundsWon++;
+		
+		desinit();
 		
 		for(GameCoreListener listener : gameCoreListeners)
 			listener.onPlayerWon(playerWinner);
+		
+		statHandle();
 	}
 	
 	/**
@@ -608,9 +662,10 @@ public class GameCore {
 			e.printStackTrace();
 			return false;
 		}
-		
-		for(GameCoreListener listener : gameCoreListeners)
-			listener.repaintRequest();
+
+		if(!Consts.AINOREPAINT)
+			for(GameCoreListener listener : gameCoreListeners)
+				listener.repaintRequest();
 		
 		return true;
 	}

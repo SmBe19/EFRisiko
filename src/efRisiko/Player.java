@@ -11,6 +11,7 @@ package efRisiko;
 
 public class Player {
 	public String name;
+	public int roundsWon;
 	
 	public enum PlayerControlType { LOCAL, /*REMOTE,*/ AI };
 	public PlayerControlType controlType;

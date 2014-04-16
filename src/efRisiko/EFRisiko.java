@@ -41,6 +41,8 @@ public class EFRisiko {
 			return;
 		}
 		
+		GameCore.statInit();
+		
 		// Debug
 		if(Consts.USEDEBUGSTARTUNITS)
 			GameCore.unitsLeft = Consts.PLAYERCOUNT * Consts.DEBUGSTARTUNITS;

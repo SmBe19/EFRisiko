@@ -213,8 +213,9 @@ public class AI {
 					e.printStackTrace();
 				}
 			processInput(line);
-			for(AIListener listener : aiListeners)
-				listener.repaintRequest();
+			if(!Consts.AINOREPAINT)
+				for(AIListener listener : aiListeners)
+					listener.repaintRequest();
 		}
 		activeOrder = 0;
 	}
