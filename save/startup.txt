@@ -1,11 +1,8 @@
 Risiko.txt
-3
+2
 Ben
-AI
+LOCAL
 "P:\workspace\EFRisiko\ai\BSAI1\bin\Debug\BSAI1.exe"
 AI
-AI
-"P:\workspace\EFRisiko\ai\DemoAI\bin\Debug\DemoAI.exe"
-AI 3
-AI
+LOCAL
 "P:\workspace\EFRisiko\ai\DemoAI\bin\Debug\DemoAI.exe"
